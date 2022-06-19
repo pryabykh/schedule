@@ -4,7 +4,9 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.test.context.ActiveProfiles;
 
+@ActiveProfiles("test")
 public class BCryptPasswordEncoderServiceTests {
     private BCryptPasswordEncoder encoder;
     private BCryptPasswordEncoderService encoderService;
