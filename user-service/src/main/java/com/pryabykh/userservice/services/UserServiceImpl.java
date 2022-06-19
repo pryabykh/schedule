@@ -13,9 +13,11 @@ import java.util.Optional;
 @Service
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
+    private final BCryptPasswordEncoderService encoderService;
 
-    public UserServiceImpl(UserRepository userRepository) {
+    public UserServiceImpl(UserRepository userRepository, BCryptPasswordEncoderService encoderService) {
         this.userRepository = userRepository;
+        this.encoderService = encoderService;
     }
 
     @Override
@@ -23,6 +25,7 @@ public class UserServiceImpl implements UserService {
         if (userAlreadyExists(userDto.getEmail())) {
             throw new UserAlreadyExistsException();
         }
+        userDto.setPassword(encoderService.generateHash(userDto.getPassword()));
         User userEntity = UserDtoUtils.convertToEntity(userDto);
         User savedEntity = userRepository.save(userEntity);
         return UserDtoUtils.convertFromEntity(savedEntity, GetUserDto.class);
