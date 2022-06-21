@@ -1,6 +1,5 @@
 package com.pryabykh.userservice.controllers;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.pryabykh.userservice.dtos.CreateUserDto;
 import com.pryabykh.userservice.dtos.UserCredentialsDto;
 import com.pryabykh.userservice.exceptions.UserAlreadyExistsException;
@@ -15,8 +14,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultMatcher;
-import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import javax.validation.ConstraintViolationException;
 

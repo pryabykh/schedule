@@ -2,7 +2,6 @@ package com.pryabykh.userservice.services;
 
 import com.pryabykh.userservice.dtos.GetUserDto;
 import com.pryabykh.userservice.exceptions.UserAlreadyExistsException;
-import com.pryabykh.userservice.exceptions.UserNotFoundException;
 import com.pryabykh.userservice.models.User;
 import com.pryabykh.userservice.repositories.UserRepository;
 import com.pryabykh.userservice.utils.UserUtils;
@@ -88,9 +87,8 @@ public class UserServiceTests {
         String password = "123456";
         Mockito.when(userRepository.findByEmail(Mockito.anyString()))
                 .thenReturn(Optional.empty());
-
-        Assertions.assertThrows(UserNotFoundException.class, () ->
-                userService.checkCredentials(UserUtils.shapeUserCredentialsDtoByPassword(password)));
+        boolean result = userService.checkCredentials(UserUtils.shapeUserCredentialsDtoByPassword(password));
+        Assertions.assertFalse(result);
     }
 
     @Test

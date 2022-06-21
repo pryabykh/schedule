@@ -26,7 +26,7 @@ public class UserController {
     }
 
     @PostMapping("/check-credentials")
-    ResponseEntity<?> register(@RequestBody UserCredentialsDto userCredentialsDto) {
+    ResponseEntity<?> checkCredentials(@RequestBody UserCredentialsDto userCredentialsDto) {
         return ResponseEntity.ok(userService.checkCredentials(userCredentialsDto));
     }
 

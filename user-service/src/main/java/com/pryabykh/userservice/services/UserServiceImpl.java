@@ -11,6 +11,7 @@ import com.pryabykh.userservice.utils.UserDtoUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -26,6 +27,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional
     public GetUserDto register(CreateUserDto userDto) {
         String userEmail = userDto.getEmail();
         if (userAlreadyExists(userEmail)) {
@@ -40,8 +42,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean checkCredentials(UserCredentialsDto userCredentialsDto) {
-        User user = userRepository.findByEmail(userCredentialsDto.getEmail()).orElseThrow(UserNotFoundException::new);
-        return encoder.matches(userCredentialsDto.getPassword(), user.getPassword());
+        Optional<User> optionalUser = userRepository.findByEmail(userCredentialsDto.getEmail());
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.orElseThrow(UserNotFoundException::new);
+            return encoder.matches(userCredentialsDto.getPassword(), user.getPassword());
+        } else {
+            return false;
+        }
     }
 
     boolean userAlreadyExists(String email) {
