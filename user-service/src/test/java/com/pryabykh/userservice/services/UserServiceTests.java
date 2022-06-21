@@ -84,14 +84,19 @@ public class UserServiceTests {
     }
 
     @Test
-    public void checkCredentialsUserNotFound() {
+    public void checkCredentialsThrowsUserNotFoundException() {
         String password = "123456";
-        String passwordHash = encoder.encode(password);
         Mockito.when(userRepository.findByEmail(Mockito.anyString()))
                 .thenReturn(Optional.empty());
 
         Assertions.assertThrows(UserNotFoundException.class, () ->
                 userService.checkCredentials(UserUtils.shapeUserCredentialsDtoByPassword(password)));
+    }
+
+    @Test
+    public void checkCredentialsThrowsConstraintViolationException() {
+        Assertions.assertThrows(ConstraintViolationException.class, () ->
+                userService.checkCredentials(UserUtils.shapeInvalidUserCredentialsDto()));
     }
 
     @Autowired

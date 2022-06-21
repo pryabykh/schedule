@@ -2,7 +2,9 @@ package com.pryabykh.userservice.controllers;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.pryabykh.userservice.dtos.CreateUserDto;
+import com.pryabykh.userservice.dtos.UserCredentialsDto;
 import com.pryabykh.userservice.exceptions.UserAlreadyExistsException;
+import com.pryabykh.userservice.exceptions.UserNotFoundException;
 import com.pryabykh.userservice.services.UserService;
 import com.pryabykh.userservice.utils.UserUtils;
 import org.junit.jupiter.api.Test;
@@ -13,13 +15,14 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.ResultMatcher;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
 import javax.validation.ConstraintViolationException;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(UserController.class)
 @ActiveProfiles({"test", "postgresql" , "eureka", "liquibase"})
@@ -77,6 +80,55 @@ public class UserControllerTests {
         mockMvc.perform(post("/v1/users/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(UserUtils.toJson(createUserDto)))
+                .andExpect(status().isInternalServerError());
+    }
+
+    @Test
+    public void checkCredentialsPositive() throws Exception {
+        Mockito.when(userService.checkCredentials(Mockito.any()))
+                .thenReturn(true);
+
+        UserCredentialsDto userCredentialsDto = UserUtils.shapeUserCredentialsDtoByPassword("123456");
+        mockMvc.perform(post("/v1/users/check-credentials")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(UserUtils.toJson(userCredentialsDto)))
+                .andExpect(status().isOk())
+                .andExpect(content().string("true"));
+    }
+
+    @Test
+    public void checkCredentialsInvalidRequest() throws Exception {
+        Mockito.when(userService.checkCredentials(Mockito.any()))
+                .thenThrow(ConstraintViolationException.class);
+
+        UserCredentialsDto userCredentialsDto = UserUtils.shapeUserCredentialsDtoByPassword("123456");
+        mockMvc.perform(post("/v1/users/check-credentials")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(UserUtils.toJson(userCredentialsDto)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void checkCredentialsUserNotFound() throws Exception {
+        Mockito.when(userService.checkCredentials(Mockito.any()))
+                .thenThrow(UserNotFoundException.class);
+
+        UserCredentialsDto userCredentialsDto = UserUtils.shapeUserCredentialsDtoByPassword("123456");
+        mockMvc.perform(post("/v1/users/check-credentials")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(UserUtils.toJson(userCredentialsDto)))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void checkCredentialsInternalError() throws Exception {
+        Mockito.when(userService.checkCredentials(Mockito.any()))
+                .thenThrow(RuntimeException.class);
+
+        UserCredentialsDto userCredentialsDto = UserUtils.shapeUserCredentialsDtoByPassword("123456");
+        mockMvc.perform(post("/v1/users/check-credentials")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(UserUtils.toJson(userCredentialsDto)))
                 .andExpect(status().isInternalServerError());
     }
 }

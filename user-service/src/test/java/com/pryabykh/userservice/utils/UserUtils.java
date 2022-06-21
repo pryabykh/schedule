@@ -75,6 +75,13 @@ public class UserUtils {
         return userCredentialsDto;
     }
 
+    public static UserCredentialsDto shapeInvalidUserCredentialsDto() {
+        UserCredentialsDto userCredentialsDto = new UserCredentialsDto();
+        userCredentialsDto.setEmail("john");
+        userCredentialsDto.setPassword(null);
+        return userCredentialsDto;
+    }
+
     public static String toJson(Object obj) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectWriter objectWriter = objectMapper.writer().withDefaultPrettyPrinter();
