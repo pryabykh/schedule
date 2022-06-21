@@ -2,6 +2,7 @@ package com.pryabykh.userservice.services;
 
 import com.pryabykh.userservice.dtos.GetUserDto;
 import com.pryabykh.userservice.exceptions.UserAlreadyExistsException;
+import com.pryabykh.userservice.exceptions.UserNotFoundException;
 import com.pryabykh.userservice.models.User;
 import com.pryabykh.userservice.repositories.UserRepository;
 import com.pryabykh.userservice.utils.UserUtils;
@@ -11,30 +12,29 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 
 import javax.validation.ConstraintViolationException;
 import java.util.Optional;
 
 @SpringBootTest
-@ActiveProfiles("test")
+@ActiveProfiles({"test", "postgresql" , "eureka", "liquibase"})
 public class UserServiceTests {
     private UserService userService;
+    private BCryptPasswordEncoder encoder;
     @MockBean
     private UserRepository userRepository;
-    @MockBean
-    private BCryptPasswordEncoderService encoderService;
 
     @Test
     public void registerPositive() {
         Mockito.when(userRepository.findByEmail(Mockito.anyString()))
                 .thenReturn(Optional.empty());
-        Mockito.when(encoderService.generateHash(Mockito.anyString()))
-                .thenReturn("$2a$10$K7shy/f3EavtQCT3rmZaYunlP9oK6rIdkAoJdJoxElwXj0UBTXFsq");
-        Optional<User> user = UserUtils.shapeExistingUserEntity();
-        User existingUser = user.orElseThrow(IllegalArgumentException::new);
+        User existingUser = UserUtils.shapeExistingUserEntity().orElseThrow(IllegalArgumentException::new);
         Mockito.when(userRepository.save(Mockito.any())).thenReturn(existingUser);
+
         GetUserDto registeredUser = userService.register(UserUtils.shapeCreateUserDto());
+
         Assertions.assertEquals(registeredUser.getId(), existingUser.getId());
         Assertions.assertEquals(registeredUser.getCreatedAt(), existingUser.getCreatedAt());
         Assertions.assertEquals(registeredUser.getUpdatedAt(), existingUser.getUpdatedAt());
@@ -58,8 +58,49 @@ public class UserServiceTests {
                 userService.register(UserUtils.shapeInvalidCreateUserDto()));
     }
 
+    @Test
+    public void checkCredentialsTrue() {
+        String password = "123456";
+        String passwordHash = encoder.encode(password);
+        Mockito.when(userRepository.findByEmail(Mockito.anyString()))
+                .thenReturn(UserUtils.shapeExistingUserEntityByPassword(passwordHash));
+
+        boolean result = userService.checkCredentials(UserUtils.shapeUserCredentialsDtoByPassword(password));
+
+        Assertions.assertTrue(result);
+    }
+
+    @Test
+    public void checkCredentialsFalse() {
+        String givenPassword = "givenPassowrd123";
+        String actualPassword = "123456";
+        String actualPasswordHash = encoder.encode(actualPassword);
+        Mockito.when(userRepository.findByEmail(Mockito.anyString()))
+                .thenReturn(UserUtils.shapeExistingUserEntityByPassword(actualPasswordHash));
+
+        boolean result = userService.checkCredentials(UserUtils.shapeUserCredentialsDtoByPassword(givenPassword));
+
+        Assertions.assertFalse(result);
+    }
+
+    @Test
+    public void checkCredentialsUserNotFound() {
+        String password = "123456";
+        String passwordHash = encoder.encode(password);
+        Mockito.when(userRepository.findByEmail(Mockito.anyString()))
+                .thenReturn(Optional.empty());
+
+        Assertions.assertThrows(UserNotFoundException.class, () ->
+                userService.checkCredentials(UserUtils.shapeUserCredentialsDtoByPassword(password)));
+    }
+
     @Autowired
     public void setUserService(UserService userService) {
         this.userService = userService;
+    }
+
+    @Autowired
+    public void setEncoder(BCryptPasswordEncoder encoder) {
+        this.encoder = encoder;
     }
 }

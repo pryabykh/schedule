@@ -22,7 +22,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(UserController.class)
-@ActiveProfiles("test")
+@ActiveProfiles({"test", "postgresql" , "eureka", "liquibase"})
 public class UserControllerTests {
     @Autowired
     private MockMvc mockMvc;

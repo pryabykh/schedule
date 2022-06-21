@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.pryabykh.userservice.dtos.CreateUserDto;
 import com.pryabykh.userservice.dtos.GetUserDto;
+import com.pryabykh.userservice.dtos.UserCredentialsDto;
 import com.pryabykh.userservice.models.User;
 
 import java.util.Date;
@@ -16,6 +17,19 @@ public class UserUtils {
         user.setId(1L);
         user.setEmail("john@ya.ru");
         user.setPassword("$2a$10$K7shy/f3EavtQCT3rmZaYunlP9oK6rIdkAoJdJoxElwXj0UBTXFsq");
+        user.setVersion(1);
+        user.setFirstName("John");
+        user.setLastName("Smith");
+        user.setCreatedAt(new Date());
+        user.setUpdatedAt(new Date());
+        return Optional.of(user);
+    }
+
+    public static Optional<User> shapeExistingUserEntityByPassword(String passwordHash) {
+        User user = new User();
+        user.setId(1L);
+        user.setEmail("john@ya.ru");
+        user.setPassword(passwordHash);
         user.setVersion(1);
         user.setFirstName("John");
         user.setLastName("Smith");
@@ -52,6 +66,13 @@ public class UserUtils {
         getUserDto.setCreatedAt(new Date());
         getUserDto.setUpdatedAt(new Date());
         return getUserDto;
+    }
+
+    public static UserCredentialsDto shapeUserCredentialsDtoByPassword(String password) {
+        UserCredentialsDto userCredentialsDto = new UserCredentialsDto();
+        userCredentialsDto.setEmail("john@ya.ru");
+        userCredentialsDto.setPassword(password);
+        return userCredentialsDto;
     }
 
     public static String toJson(Object obj) throws JsonProcessingException {
