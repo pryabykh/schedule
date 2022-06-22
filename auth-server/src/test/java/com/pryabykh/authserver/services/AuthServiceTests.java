@@ -15,7 +15,7 @@ import org.springframework.test.context.ActiveProfiles;
 import javax.validation.ConstraintViolationException;
 
 @SpringBootTest
-@ActiveProfiles({"test", "postgresql" , "eureka", "liquibase"})
+@ActiveProfiles("test")
 public class AuthServiceTests {
     private AuthService authService;
     @MockBean
