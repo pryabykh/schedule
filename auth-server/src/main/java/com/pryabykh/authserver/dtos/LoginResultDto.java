@@ -6,6 +6,6 @@ import lombok.Data;
 public class LoginResultDto {
     private String accessToken;
     private String refreshToken;
-    private int expiresIn;
-    private int refreshExpiresIn;
+    private long expiresIn;
+    private long refreshExpiresIn;
 }

@@ -3,7 +3,8 @@ package com.pryabykh.authserver.services;
 import com.pryabykh.authserver.dtos.LoginResultDto;
 import com.pryabykh.authserver.exceptions.BadCredentialsException;
 import com.pryabykh.authserver.feign.UserServiceFeignClient;
-import com.pryabykh.authserver.utils.AuthUtils;
+import com.pryabykh.authserver.repositories.TokenRepository;
+import com.pryabykh.authserver.utils.AuthTestUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -20,13 +21,17 @@ public class AuthServiceTests {
     private AuthService authService;
     @MockBean
     private UserServiceFeignClient userServiceFeignClient;
+    @MockBean
+    private TokenRepository tokenRepository;
 
     @Test
     public void loginPositive() {
         Mockito.when(userServiceFeignClient.checkCredentials(Mockito.any()))
                 .thenReturn(true);
+        Mockito.when(tokenRepository.save(Mockito.any()))
+                .thenReturn(AuthTestUtils.shapeSavedToken());
 
-        LoginResultDto loginResult = authService.login(AuthUtils.shapeUserCredentialsDto());
+        LoginResultDto loginResult = authService.login(AuthTestUtils.shapeUserCredentialsDto());
         Assertions.assertNotNull(loginResult.getAccessToken());
         Assertions.assertNotNull(loginResult.getRefreshToken());
         Assertions.assertTrue(loginResult.getExpiresIn() > 0);
@@ -39,19 +44,14 @@ public class AuthServiceTests {
                 .thenReturn(false);
 
         Assertions.assertThrows(BadCredentialsException.class, () ->
-                authService.login(AuthUtils.shapeUserCredentialsDto()));
+                authService.login(AuthTestUtils.shapeUserCredentialsDto()));
     }
 
     @Test
     public void loginThrowsConstraintViolationException() {
         Assertions.assertThrows(ConstraintViolationException.class, () ->
-                authService.login(AuthUtils.shapeInvalidUserCredentialsDto()));
+                authService.login(AuthTestUtils.shapeInvalidUserCredentialsDto()));
     }
-
-    //TODO: user can login
-    //TODO: user get 403 when bad credentials
-    //TODO: user get 400 bad request when invalid dto
-    //TODO: user get 500 when internal server error
 
     @Autowired
     public void setAuthService(AuthService authService) {

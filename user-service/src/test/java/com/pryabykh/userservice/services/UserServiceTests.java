@@ -4,7 +4,7 @@ import com.pryabykh.userservice.dtos.GetUserDto;
 import com.pryabykh.userservice.exceptions.UserAlreadyExistsException;
 import com.pryabykh.userservice.models.User;
 import com.pryabykh.userservice.repositories.UserRepository;
-import com.pryabykh.userservice.utils.UserUtils;
+import com.pryabykh.userservice.utils.UserTestUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -18,7 +18,7 @@ import javax.validation.ConstraintViolationException;
 import java.util.Optional;
 
 @SpringBootTest
-@ActiveProfiles({"test", "postgresql" , "eureka", "liquibase"})
+@ActiveProfiles("test")
 public class UserServiceTests {
     private UserService userService;
     private BCryptPasswordEncoder encoder;
@@ -29,10 +29,10 @@ public class UserServiceTests {
     public void registerPositive() {
         Mockito.when(userRepository.findByEmail(Mockito.anyString()))
                 .thenReturn(Optional.empty());
-        User existingUser = UserUtils.shapeExistingUserEntity().orElseThrow(IllegalArgumentException::new);
+        User existingUser = UserTestUtils.shapeExistingUserEntity().orElseThrow(IllegalArgumentException::new);
         Mockito.when(userRepository.save(Mockito.any())).thenReturn(existingUser);
 
-        GetUserDto registeredUser = userService.register(UserUtils.shapeCreateUserDto());
+        GetUserDto registeredUser = userService.register(UserTestUtils.shapeCreateUserDto());
 
         Assertions.assertEquals(registeredUser.getId(), existingUser.getId());
         Assertions.assertEquals(registeredUser.getCreatedAt(), existingUser.getCreatedAt());
@@ -46,15 +46,15 @@ public class UserServiceTests {
     @Test
     public void registerThrowsUserAlreadyExistsException() {
         Mockito.when(userRepository.findByEmail(Mockito.anyString()))
-                .thenReturn(UserUtils.shapeExistingUserEntity());
+                .thenReturn(UserTestUtils.shapeExistingUserEntity());
         Assertions.assertThrows(UserAlreadyExistsException.class, () ->
-                userService.register(UserUtils.shapeCreateUserDto()));
+                userService.register(UserTestUtils.shapeCreateUserDto()));
     }
 
     @Test
     public void registerThrowsConstraintViolationException() {
         Assertions.assertThrows(ConstraintViolationException.class, () ->
-                userService.register(UserUtils.shapeInvalidCreateUserDto()));
+                userService.register(UserTestUtils.shapeInvalidCreateUserDto()));
     }
 
     @Test
@@ -62,9 +62,9 @@ public class UserServiceTests {
         String password = "123456";
         String passwordHash = encoder.encode(password);
         Mockito.when(userRepository.findByEmail(Mockito.anyString()))
-                .thenReturn(UserUtils.shapeExistingUserEntityByPassword(passwordHash));
+                .thenReturn(UserTestUtils.shapeExistingUserEntityByPassword(passwordHash));
 
-        boolean result = userService.checkCredentials(UserUtils.shapeUserCredentialsDtoByPassword(password));
+        boolean result = userService.checkCredentials(UserTestUtils.shapeUserCredentialsDtoByPassword(password));
 
         Assertions.assertTrue(result);
     }
@@ -75,9 +75,9 @@ public class UserServiceTests {
         String actualPassword = "123456";
         String actualPasswordHash = encoder.encode(actualPassword);
         Mockito.when(userRepository.findByEmail(Mockito.anyString()))
-                .thenReturn(UserUtils.shapeExistingUserEntityByPassword(actualPasswordHash));
+                .thenReturn(UserTestUtils.shapeExistingUserEntityByPassword(actualPasswordHash));
 
-        boolean result = userService.checkCredentials(UserUtils.shapeUserCredentialsDtoByPassword(givenPassword));
+        boolean result = userService.checkCredentials(UserTestUtils.shapeUserCredentialsDtoByPassword(givenPassword));
 
         Assertions.assertFalse(result);
     }
@@ -87,14 +87,14 @@ public class UserServiceTests {
         String password = "123456";
         Mockito.when(userRepository.findByEmail(Mockito.anyString()))
                 .thenReturn(Optional.empty());
-        boolean result = userService.checkCredentials(UserUtils.shapeUserCredentialsDtoByPassword(password));
+        boolean result = userService.checkCredentials(UserTestUtils.shapeUserCredentialsDtoByPassword(password));
         Assertions.assertFalse(result);
     }
 
     @Test
     public void checkCredentialsThrowsConstraintViolationException() {
         Assertions.assertThrows(ConstraintViolationException.class, () ->
-                userService.checkCredentials(UserUtils.shapeInvalidUserCredentialsDto()));
+                userService.checkCredentials(UserTestUtils.shapeInvalidUserCredentialsDto()));
     }
 
     @Autowired

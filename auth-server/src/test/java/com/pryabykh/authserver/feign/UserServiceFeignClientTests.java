@@ -1,7 +1,6 @@
 package com.pryabykh.authserver.feign;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.pryabykh.authserver.utils.AuthUtils;
+import com.pryabykh.authserver.utils.AuthTestUtils;
 import io.netty.handler.codec.http.HttpMethod;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -58,7 +57,7 @@ public class UserServiceFeignClientTests {
                         .withBody("true")
         );
 
-        boolean result = userServiceFeignClient.checkCredentials(AuthUtils.shapeUserCredentialsDto());
+        boolean result = userServiceFeignClient.checkCredentials(AuthTestUtils.shapeUserCredentialsDto());
         Assertions.assertTrue(result);
     }
 
