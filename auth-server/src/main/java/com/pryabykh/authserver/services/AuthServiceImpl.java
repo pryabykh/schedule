@@ -52,7 +52,8 @@ public class AuthServiceImpl implements AuthService {
     }
 
     private String createRefreshToken(String userEmail) {
-        tokenRepository.deleteAllByEmail(userEmail);
+        tokenRepository.removeByEmail(userEmail);
+        tokenRepository.flush();
         String refreshToken = createToken(userEmail, refreshExpiresInMinutes);
         Token token = new Token();
         token.setToken(refreshToken);

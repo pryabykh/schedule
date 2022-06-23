@@ -42,9 +42,10 @@ public class UserController {
         return new ResponseEntity<>("User not found", HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(Exception.class)
+    @ExceptionHandler({Exception.class, RuntimeException.class})
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ResponseEntity<String> handleException() {
+    public ResponseEntity<String> handleException(Throwable throwable) {
+        throwable.printStackTrace();
         return new ResponseEntity<>("Internal server error", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

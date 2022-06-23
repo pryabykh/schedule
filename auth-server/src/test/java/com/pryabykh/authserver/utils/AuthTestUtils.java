@@ -3,6 +3,7 @@ package com.pryabykh.authserver.utils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
+import com.pryabykh.authserver.dtos.LoginResultDto;
 import com.pryabykh.authserver.dtos.UserCredentialsDto;
 import com.pryabykh.authserver.models.Token;
 
@@ -31,6 +32,15 @@ public class AuthTestUtils {
         token.setCreatedAt(new Date());
         token.setUpdatedAt(new Date());
         return token;
+    }
+
+    public static LoginResultDto shapeLoginResultDto() {
+        LoginResultDto loginResultDto = new LoginResultDto();
+        loginResultDto.setAccessToken("123456789");
+        loginResultDto.setRefreshToken("123456789");
+        loginResultDto.setExpiresIn(1000L);
+        loginResultDto.setRefreshExpiresIn(2000L);
+        return loginResultDto;
     }
 
     public static String toJson(Object obj) throws JsonProcessingException {
