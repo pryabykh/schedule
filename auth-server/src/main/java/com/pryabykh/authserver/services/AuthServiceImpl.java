@@ -2,9 +2,15 @@ package com.pryabykh.authserver.services;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.pryabykh.authserver.dtos.LoginResultDto;
-import com.pryabykh.authserver.dtos.UserCredentialsDto;
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.interfaces.DecodedJWT;
+import com.auth0.jwt.interfaces.JWTVerifier;
+import com.pryabykh.authserver.dtos.request.RefreshTokenDto;
+import com.pryabykh.authserver.dtos.response.TokenAndRefreshTokenDto;
+import com.pryabykh.authserver.dtos.request.UserCredentialsDto;
 import com.pryabykh.authserver.exceptions.BadCredentialsException;
+import com.pryabykh.authserver.exceptions.InvalidTokenException;
+import com.pryabykh.authserver.exceptions.TokenDoesNotExistException;
 import com.pryabykh.authserver.feign.UserServiceFeignClient;
 import com.pryabykh.authserver.models.Token;
 import com.pryabykh.authserver.repositories.TokenRepository;
@@ -13,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
+import java.util.Optional;
 
 @Service
 public class AuthServiceImpl implements AuthService {
@@ -34,17 +41,27 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public LoginResultDto login(UserCredentialsDto userCredentialsDto) {
+    public TokenAndRefreshTokenDto login(UserCredentialsDto userCredentialsDto) {
         boolean userAuthenticated = userServiceFeignClient.checkCredentials(userCredentialsDto);
         if (!userAuthenticated) {
             throw new BadCredentialsException();
         }
-        LoginResultDto loginResultDto = new LoginResultDto();
-        loginResultDto.setAccessToken(createAccessToken(userCredentialsDto.getEmail()));
-        loginResultDto.setExpiresIn(tokenExpiresInMinutes * 60);
-        loginResultDto.setRefreshToken(createRefreshToken(userCredentialsDto.getEmail()));
-        loginResultDto.setRefreshExpiresIn(refreshExpiresInMinutes * 60);
-        return loginResultDto;
+        String userEmail = userCredentialsDto.getEmail();
+        String accessToken = createAccessToken(userEmail);
+        String refreshToken = createRefreshToken(userEmail);
+        return createTokenAndRefreshTokenDto(accessToken, refreshToken);
+    }
+
+    @Override
+    public TokenAndRefreshTokenDto refresh(RefreshTokenDto refreshTokenDto) {
+        String refreshToken = refreshTokenDto.getRefreshToken();
+        Optional<Token> optionalToken = tokenRepository.findByToken(refreshToken);
+        optionalToken.orElseThrow(TokenDoesNotExistException::new);
+        DecodedJWT decodedJWT = verifyToken(refreshToken);
+        String userEmail = decodedJWT.getClaim(userClaimName).asString();
+        String newAccessToken = createAccessToken(userEmail);
+        String newRefreshToken = createRefreshToken(userEmail);
+        return createTokenAndRefreshTokenDto(newAccessToken, newRefreshToken);
     }
 
     private String createAccessToken(String userEmail) {
@@ -70,4 +87,24 @@ public class AuthServiceImpl implements AuthService {
                 .withClaim(userClaimName, userEmail)
                 .sign(algorithm);
     }
+
+    private TokenAndRefreshTokenDto createTokenAndRefreshTokenDto(String accessToken, String refreshToken) {
+        TokenAndRefreshTokenDto tokenAndRefreshTokenDto = new TokenAndRefreshTokenDto();
+        tokenAndRefreshTokenDto.setAccessToken(accessToken);
+        tokenAndRefreshTokenDto.setExpiresIn(tokenExpiresInMinutes * 60);
+        tokenAndRefreshTokenDto.setRefreshToken(refreshToken);
+        tokenAndRefreshTokenDto.setRefreshExpiresIn(refreshExpiresInMinutes * 60);
+        return tokenAndRefreshTokenDto;
+    }
+
+    private DecodedJWT verifyToken(String token) {
+        Algorithm algorithm = Algorithm.HMAC256(tokenSecretKey);
+        try {
+            JWTVerifier verifier = JWT.require(algorithm).build();
+            return verifier.verify(token);
+        } catch (JWTVerificationException exception){
+            throw new InvalidTokenException();
+        }
+    }
+
 }

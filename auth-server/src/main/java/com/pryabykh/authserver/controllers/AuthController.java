@@ -1,6 +1,6 @@
 package com.pryabykh.authserver.controllers;
 
-import com.pryabykh.authserver.dtos.UserCredentialsDto;
+import com.pryabykh.authserver.dtos.request.UserCredentialsDto;
 import com.pryabykh.authserver.exceptions.BadCredentialsException;
 import com.pryabykh.authserver.services.AuthService;
 import org.springframework.http.HttpStatus;

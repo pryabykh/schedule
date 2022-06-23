@@ -1,4 +1,4 @@
-package com.pryabykh.authserver.dtos;
+package com.pryabykh.authserver.dtos.request;
 
 import lombok.Data;
 

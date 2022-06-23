@@ -1,7 +1,6 @@
 package com.pryabykh.authserver.controllers;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.pryabykh.authserver.dtos.UserCredentialsDto;
+import com.pryabykh.authserver.dtos.request.UserCredentialsDto;
 import com.pryabykh.authserver.exceptions.BadCredentialsException;
 import com.pryabykh.authserver.services.AuthService;
 import com.pryabykh.authserver.utils.AuthTestUtils;

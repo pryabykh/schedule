@@ -1,9 +1,9 @@
-package com.pryabykh.authserver.dtos;
+package com.pryabykh.authserver.dtos.response;
 
 import lombok.Data;
 
 @Data
-public class LoginResultDto {
+public class TokenAndRefreshTokenDto {
     private String accessToken;
     private String refreshToken;
     private long expiresIn;
