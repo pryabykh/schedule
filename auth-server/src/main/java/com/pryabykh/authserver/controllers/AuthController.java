@@ -1,7 +1,10 @@
 package com.pryabykh.authserver.controllers;
 
+import com.pryabykh.authserver.dtos.request.RefreshTokenDto;
 import com.pryabykh.authserver.dtos.request.UserCredentialsDto;
 import com.pryabykh.authserver.exceptions.BadCredentialsException;
+import com.pryabykh.authserver.exceptions.InvalidTokenException;
+import com.pryabykh.authserver.exceptions.TokenDoesNotExistException;
 import com.pryabykh.authserver.services.AuthService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +26,11 @@ public class AuthController {
         return ResponseEntity.ok(authService.login(userCredentialsDto));
     }
 
+    @PostMapping("/refresh")
+    ResponseEntity<?> refresh(@RequestBody RefreshTokenDto refreshTokenDto) {
+        return ResponseEntity.ok(authService.refresh(refreshTokenDto));
+    }
+
     @ExceptionHandler({ConstraintViolationException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<String> handleConstraintViolationException() {
@@ -33,6 +41,12 @@ public class AuthController {
     @ResponseStatus(HttpStatus.FORBIDDEN)
     public ResponseEntity<String> handleBadCredentialsException() {
         return new ResponseEntity<>("Forbidden", HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler({TokenDoesNotExistException.class, InvalidTokenException.class})
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    public ResponseEntity<String> handleInvalidToken() {
+        return new ResponseEntity<>("Unauthorized", HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler({Exception.class, RuntimeException.class})

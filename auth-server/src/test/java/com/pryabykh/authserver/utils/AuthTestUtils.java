@@ -37,7 +37,7 @@ public class AuthTestUtils {
         return token;
     }
 
-    public static TokenAndRefreshTokenDto shapeLoginResultDto() {
+    public static TokenAndRefreshTokenDto shapeTokenAndRefreshTokentDto() {
         TokenAndRefreshTokenDto tokenAndRefreshTokenDto = new TokenAndRefreshTokenDto();
         tokenAndRefreshTokenDto.setAccessToken("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyRW1haWwiOiJwYXZlbEB5YS5ydSIsImV4cCI6MTY1NTk4Nzg5MX0.EDT7406GboVSTDAoKJpTGSLEVRa6O0jp_DcjT7FU8cs");
         tokenAndRefreshTokenDto.setRefreshToken("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyRW1haWwiOiJwYXZlbEB5YS5ydSIsImV4cCI6MTY1NTk4Nzg5MX0.EDT7406GboVSTDAoKJpTGSLEVRa6O0jp_DcjT7FU8cs");

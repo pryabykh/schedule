@@ -53,6 +53,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
+    @Transactional
     public TokenAndRefreshTokenDto refresh(RefreshTokenDto refreshTokenDto) {
         String refreshToken = refreshTokenDto.getRefreshToken();
         Optional<Token> optionalToken = tokenRepository.findByToken(refreshToken);
