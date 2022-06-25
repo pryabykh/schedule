@@ -10,6 +10,7 @@ import com.pryabykh.authserver.utils.AuthTestUtils;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
@@ -30,6 +31,8 @@ public class AuthControllerTests {
     private MockMvc mockMvc;
     @MockBean
     private AuthService authService;
+    @Value("${auth.jwt.secret-key}")
+    private String tokenSecretKey;
 
     @Test
     public void loginPositive() throws Exception {
@@ -88,7 +91,7 @@ public class AuthControllerTests {
         Mockito.when(authService.refresh(Mockito.any()))
                 .thenReturn(AuthTestUtils.shapeTokenAndRefreshTokentDto());
 
-        RefreshTokenDto refreshTokenDto = AuthTestUtils.shapeRefreshTokenDto();
+        RefreshTokenDto refreshTokenDto = AuthTestUtils.shapeRefreshTokenDto(tokenSecretKey);
         mockMvc.perform(post("/v1/auth/refresh")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(AuthTestUtils.toJson(refreshTokenDto)))

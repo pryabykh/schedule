@@ -46,9 +46,16 @@ public class AuthTestUtils {
         return tokenAndRefreshTokenDto;
     }
 
-    public static RefreshTokenDto shapeRefreshTokenDto() {
+    public static RefreshTokenDto shapeRefreshTokenDto(String secretKey) {
         RefreshTokenDto refreshTokenDto = new RefreshTokenDto();
-        refreshTokenDto.setRefreshToken("eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyRW1haWwiOiJwYXZlbEB5YS5ydSIsImV4cCI6MTY1NTk4Nzg5MX0.EDT7406GboVSTDAoKJpTGSLEVRa6O0jp_DcjT7FU8cs");
+        Algorithm algorithm = Algorithm.HMAC256(secretKey);
+        Date now = new Date();
+        String token = JWT.create()
+                .withExpiresAt(new Date(now.getTime() + (15 * 60 * 1000)))
+                .withClaim("email", "user@ya.ru")
+                .sign(algorithm);
+        refreshTokenDto.setRefreshToken(token);
+        refreshTokenDto.setRefreshToken(token);
         return refreshTokenDto;
     }
 
@@ -62,7 +69,7 @@ public class AuthTestUtils {
         RefreshTokenDto refreshTokenDto = new RefreshTokenDto();
         Algorithm algorithm = Algorithm.HMAC256("secret");
         Date now = new Date();
-                String token = JWT.create()
+        String token = JWT.create()
                 .withExpiresAt(new Date(now.getTime() - (15 * 60 * 1000)))
                 .withClaim("email", "user@ya.ru")
                 .sign(algorithm);

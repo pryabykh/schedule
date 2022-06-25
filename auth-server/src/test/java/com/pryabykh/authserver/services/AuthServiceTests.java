@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
@@ -26,6 +27,8 @@ public class AuthServiceTests {
     private UserServiceFeignClient userServiceFeignClient;
     @MockBean
     private TokenRepository tokenRepository;
+    @Value("${auth.jwt.secret-key}")
+    private String tokenSecretKey;
 
     @Test
     public void loginPositive() {
@@ -63,7 +66,7 @@ public class AuthServiceTests {
         Mockito.when(tokenRepository.save(Mockito.any()))
                 .thenReturn(AuthTestUtils.shapeSavedToken());
 
-        TokenAndRefreshTokenDto refresh = authService.refresh(AuthTestUtils.shapeRefreshTokenDto());
+        TokenAndRefreshTokenDto refresh = authService.refresh(AuthTestUtils.shapeRefreshTokenDto(tokenSecretKey));
         Assertions.assertNotNull(refresh.getAccessToken());
         Assertions.assertNotNull(refresh.getRefreshToken());
         Assertions.assertTrue(refresh.getExpiresIn() > 0);
@@ -81,7 +84,7 @@ public class AuthServiceTests {
         Mockito.when(tokenRepository.findByToken(Mockito.anyString()))
                 .thenReturn(Optional.empty());
         Assertions.assertThrows(TokenDoesNotExistException.class, () ->
-                authService.refresh(AuthTestUtils.shapeRefreshTokenDto()));
+                authService.refresh(AuthTestUtils.shapeRefreshTokenDto(tokenSecretKey)));
     }
 
     @Test
