@@ -6,7 +6,7 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
 
 @Data
-public class CreateWorkspaceDto {
+public class WorkspaceDto {
     @NotEmpty @Size(min = 1, max = 255)
     private String name;
 }
