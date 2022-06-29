@@ -1,6 +1,7 @@
 package com.pryabykh.userservice.controllers;
 
 import com.pryabykh.userservice.dtos.CreateUserDto;
+import com.pryabykh.userservice.dtos.GetUserDto;
 import com.pryabykh.userservice.dtos.UserCredentialsDto;
 import com.pryabykh.userservice.exceptions.UserAlreadyExistsException;
 import com.pryabykh.userservice.exceptions.UserNotFoundException;
@@ -21,14 +22,20 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    ResponseEntity<?> register(@RequestBody CreateUserDto createUserDto) {
+    ResponseEntity<GetUserDto> register(@RequestBody CreateUserDto createUserDto) {
         return ResponseEntity.ok(userService.register(createUserDto));
     }
 
     @PostMapping("/check-credentials")
-    ResponseEntity<?> checkCredentials(@RequestBody UserCredentialsDto userCredentialsDto) {
+    ResponseEntity<Boolean> checkCredentials(@RequestBody UserCredentialsDto userCredentialsDto) {
         return ResponseEntity.ok(userService.checkCredentials(userCredentialsDto));
     }
+
+    @GetMapping("/findIdByEmail/{email}")
+    ResponseEntity<Long> findUserIdByEmail(@PathVariable("email") String email) {
+        return ResponseEntity.ok(userService.findUserIdByEmail(email));
+    }
+
 
     @ExceptionHandler({ConstraintViolationException.class, UserAlreadyExistsException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)

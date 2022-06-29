@@ -18,6 +18,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import javax.validation.ConstraintViolationException;
 
 import static org.hamcrest.Matchers.equalTo;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -126,6 +127,47 @@ public class UserControllerTests {
         mockMvc.perform(post("/v1/users/check-credentials")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(UserTestUtils.toJson(userCredentialsDto)))
+                .andExpect(status().isInternalServerError());
+    }
+
+    @Test
+    public void findUserIdByEmailPositive() throws Exception {
+        Mockito.when(userService.findUserIdByEmail(Mockito.anyString()))
+                .thenReturn(1L);
+
+        UserCredentialsDto userCredentialsDto = UserTestUtils.shapeUserCredentialsDtoByPassword("123456");
+        mockMvc.perform(get("/v1/users/findIdByEmail/test@ya.ru"))
+                .andExpect(status().isOk())
+                .andExpect(content().string("1"));
+    }
+
+    @Test
+    public void findUserIdByEmailInvalidRequest() throws Exception {
+        Mockito.when(userService.findUserIdByEmail(Mockito.anyString()))
+                .thenThrow(ConstraintViolationException.class);
+
+        UserCredentialsDto userCredentialsDto = UserTestUtils.shapeUserCredentialsDtoByPassword("123456");
+        mockMvc.perform(get("/v1/users/findIdByEmail/test@ya.ru"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void findUserIdByEmailUserNotFound() throws Exception {
+        Mockito.when(userService.findUserIdByEmail(Mockito.anyString()))
+                .thenThrow(UserNotFoundException.class);
+
+        UserCredentialsDto userCredentialsDto = UserTestUtils.shapeUserCredentialsDtoByPassword("123456");
+        mockMvc.perform(get("/v1/users/findIdByEmail/test@ya.ru"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void findUserIdByEmailInternalServerError() throws Exception {
+        Mockito.when(userService.findUserIdByEmail(Mockito.anyString()))
+                .thenThrow(RuntimeException.class);
+
+        UserCredentialsDto userCredentialsDto = UserTestUtils.shapeUserCredentialsDtoByPassword("123456");
+        mockMvc.perform(get("/v1/users/findIdByEmail/test@ya.ru"))
                 .andExpect(status().isInternalServerError());
     }
 }
