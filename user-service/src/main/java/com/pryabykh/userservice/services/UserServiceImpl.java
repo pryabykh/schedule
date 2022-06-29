@@ -41,6 +41,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public boolean checkCredentials(UserCredentialsDto userCredentialsDto) {
         Optional<User> optionalUser = userRepository.findByEmail(userCredentialsDto.getEmail());
         if (optionalUser.isPresent()) {
@@ -49,6 +50,13 @@ public class UserServiceImpl implements UserService {
         } else {
             return false;
         }
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Long findUserIdByEmail(String email) {
+        User user = userRepository.findByEmail(email).orElseThrow(UserNotFoundException::new);
+        return user.getId();
     }
 
     boolean userAlreadyExists(String email) {

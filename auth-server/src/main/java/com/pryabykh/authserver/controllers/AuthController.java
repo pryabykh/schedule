@@ -2,6 +2,7 @@ package com.pryabykh.authserver.controllers;
 
 import com.pryabykh.authserver.dtos.request.RefreshTokenDto;
 import com.pryabykh.authserver.dtos.request.UserCredentialsDto;
+import com.pryabykh.authserver.dtos.response.TokenAndRefreshTokenDto;
 import com.pryabykh.authserver.exceptions.BadCredentialsException;
 import com.pryabykh.authserver.exceptions.InvalidTokenException;
 import com.pryabykh.authserver.exceptions.TokenDoesNotExistException;
@@ -22,12 +23,12 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    ResponseEntity<?> login(@RequestBody UserCredentialsDto userCredentialsDto) {
+    ResponseEntity<TokenAndRefreshTokenDto> login(@RequestBody UserCredentialsDto userCredentialsDto) {
         return ResponseEntity.ok(authService.login(userCredentialsDto));
     }
 
     @PostMapping("/refresh")
-    ResponseEntity<?> refresh(@RequestBody RefreshTokenDto refreshTokenDto) {
+    ResponseEntity<TokenAndRefreshTokenDto> refresh(@RequestBody RefreshTokenDto refreshTokenDto) {
         return ResponseEntity.ok(authService.refresh(refreshTokenDto));
     }
 

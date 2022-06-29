@@ -2,6 +2,7 @@ package com.pryabykh.userservice.services;
 
 import com.pryabykh.userservice.dtos.GetUserDto;
 import com.pryabykh.userservice.exceptions.UserAlreadyExistsException;
+import com.pryabykh.userservice.exceptions.UserNotFoundException;
 import com.pryabykh.userservice.models.User;
 import com.pryabykh.userservice.repositories.UserRepository;
 import com.pryabykh.userservice.utils.UserTestUtils;
@@ -95,6 +96,30 @@ public class UserServiceTests {
     public void checkCredentialsThrowsConstraintViolationException() {
         Assertions.assertThrows(ConstraintViolationException.class, () ->
                 userService.checkCredentials(UserTestUtils.shapeInvalidUserCredentialsDto()));
+    }
+
+    @Test
+    public void findUserIdByEmailPositive() {
+        Mockito.when(userRepository.findByEmail(Mockito.anyString()))
+                .thenReturn(UserTestUtils.shapeExistingUserEntity());
+
+        Long userId = userService.findUserIdByEmail("test@ya.ru");
+        Assertions.assertNotNull(userId);
+    }
+
+    @Test
+    public void findUserIdByEmailThrowsConstraintViolationException() {
+        Assertions.assertThrows(ConstraintViolationException.class, () ->
+                userService.findUserIdByEmail(""));
+    }
+
+    @Test
+    public void findUserIdByEmailThrowsUserNotFoundException() {
+        Mockito.when(userRepository.findByEmail(Mockito.anyString()))
+                .thenReturn(Optional.empty());
+
+        Assertions.assertThrows(UserNotFoundException.class, () ->
+                userService.findUserIdByEmail("test@ya.ru"));
     }
 
     @Autowired
