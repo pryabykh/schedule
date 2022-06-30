@@ -20,6 +20,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
 import reactor.core.publisher.Flux;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,6 +62,25 @@ public class UserServiceFeignClientTests {
 
         boolean result = userServiceFeignClient.checkCredentials(AuthTestUtils.shapeUserCredentialsDto());
         Assertions.assertTrue(result);
+    }
+
+    @Test
+    public void findUserIdByEmail() throws UnsupportedEncodingException {
+        String email = "test@test.ru";
+
+        mockServer.when(
+                request()
+                        .withMethod(HttpMethod.GET.name())
+                        .withPath("/v1/users/findIdByEmail/" +
+                                URLEncoder.encode(email, StandardCharsets.UTF_8.toString()))
+        ).respond(
+                response()
+                        .withStatusCode(HttpStatus.OK.value())
+                        .withContentType(MediaType.APPLICATION_JSON)
+                        .withBody("1")
+        );
+        Long userId = userServiceFeignClient.findUserIdByEmail(email);
+        Assertions.assertEquals(1L, userId);
     }
 
     @TestConfiguration
