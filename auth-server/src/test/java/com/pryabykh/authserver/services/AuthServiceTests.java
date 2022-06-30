@@ -34,6 +34,8 @@ public class AuthServiceTests {
     public void loginPositive() {
         Mockito.when(userServiceFeignClient.checkCredentials(Mockito.any()))
                 .thenReturn(true);
+        Mockito.when(userServiceFeignClient.findUserIdByEmail(Mockito.anyString()))
+                .thenReturn(1L);
         Mockito.when(tokenRepository.save(Mockito.any()))
                 .thenReturn(AuthTestUtils.shapeSavedToken());
 
@@ -63,6 +65,8 @@ public class AuthServiceTests {
     public void refreshPositive() {
         Mockito.when(tokenRepository.findByToken(Mockito.anyString()))
                 .thenReturn(Optional.of(AuthTestUtils.shapeSavedToken()));
+        Mockito.when(userServiceFeignClient.findUserIdByEmail(Mockito.anyString()))
+                .thenReturn(1L);
         Mockito.when(tokenRepository.save(Mockito.any()))
                 .thenReturn(AuthTestUtils.shapeSavedToken());
 

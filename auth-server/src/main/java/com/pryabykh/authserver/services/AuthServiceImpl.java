@@ -27,8 +27,10 @@ public class AuthServiceImpl implements AuthService {
     private final TokenRepository tokenRepository;
     @Value("${auth.jwt.secret-key}")
     private String tokenSecretKey;
-    @Value("${auth.jwt.user-claim-name}")
-    private String userClaimName;
+    @Value("${auth.jwt.user-email-claim-name}")
+    private String userEmailClaimName;
+    @Value("${auth.jwt.user-id-claim-name}")
+    private String userIdClaimName;
     @Value("${auth.jwt.access-token.expiresInMinutes}")
     private long tokenExpiresInMinutes;
     @Value("${auth.jwt.refresh-token.expiresInMinutes}")
@@ -59,7 +61,7 @@ public class AuthServiceImpl implements AuthService {
         Optional<Token> optionalToken = tokenRepository.findByToken(refreshToken);
         optionalToken.orElseThrow(TokenDoesNotExistException::new);
         DecodedJWT decodedJWT = verifyToken(refreshToken);
-        String userEmail = decodedJWT.getClaim(userClaimName).asString();
+        String userEmail = decodedJWT.getClaim(userEmailClaimName).asString();
         String newAccessToken = createAccessToken(userEmail);
         String newRefreshToken = createRefreshToken(userEmail);
         return createTokenAndRefreshTokenDto(newAccessToken, newRefreshToken);
@@ -82,10 +84,12 @@ public class AuthServiceImpl implements AuthService {
 
     private String createToken(String userEmail, long expiresInMinutes) {
         Algorithm algorithm = Algorithm.HMAC256(tokenSecretKey);
+        long userId = userServiceFeignClient.findUserIdByEmail(userEmail);
         Date now = new Date();
         return JWT.create()
                 .withExpiresAt(new Date(now.getTime() + (expiresInMinutes * 60 * 1000)))
-                .withClaim(userClaimName, userEmail)
+                .withClaim(userIdClaimName, userId)
+                .withClaim(userEmailClaimName, userEmail)
                 .sign(algorithm);
     }
 
