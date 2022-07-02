@@ -9,6 +9,7 @@ import com.pryabykh.workspaceservice.utils.UserContextHolder;
 import com.pryabykh.workspaceservice.utils.WorkspaceDtoUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -21,6 +22,7 @@ public class WorkspaceServiceImpl implements WorkspaceService {
     }
 
     @Override
+    @Transactional
     public SavedWorkspaceDto create(WorkspaceDto workspaceDto) {
         Long creatorId = UserContextHolder.getContext().getUserId();
         long amountOfWorkspacesForUser = workspaceRepository.countByCreator(creatorId);
@@ -32,16 +34,19 @@ public class WorkspaceServiceImpl implements WorkspaceService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public SavedWorkspaceDto findById(String id) {
         return null;
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<SavedWorkspaceDto> findAll() {
         return null;
     }
 
     @Override
+    @Transactional
     public SavedWorkspaceDto update(WorkspaceDto workspaceDto) {
         return null;
     }
