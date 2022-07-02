@@ -36,7 +36,7 @@ public class JwtServiceImpl implements JwtService {
     @Override
     public String getUserId(String token) {
         DecodedJWT decodedJWT = jwtVerifier.verify(token);
-        return decodedJWT.getClaim(userIdClaimName).asString();
+        return decodedJWT.getClaim(userIdClaimName).asLong().toString();
     }
 
     @Override

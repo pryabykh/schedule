@@ -7,6 +7,7 @@ import com.pryabykh.userservice.exceptions.UserAlreadyExistsException;
 import com.pryabykh.userservice.exceptions.UserNotFoundException;
 import com.pryabykh.userservice.models.User;
 import com.pryabykh.userservice.repositories.UserRepository;
+import com.pryabykh.userservice.utils.UserContextHolder;
 import com.pryabykh.userservice.utils.UserDtoUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
