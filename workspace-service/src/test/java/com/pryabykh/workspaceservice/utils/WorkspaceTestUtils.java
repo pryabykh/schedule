@@ -7,6 +7,7 @@ import com.pryabykh.workspaceservice.dtos.request.WorkspaceDto;
 import com.pryabykh.workspaceservice.models.Workspace;
 
 import java.util.Date;
+import java.util.List;
 
 public class WorkspaceTestUtils {
     public static WorkspaceDto shapeWorkspaceDto() {
@@ -30,6 +31,13 @@ public class WorkspaceTestUtils {
         workspace.setCreatedAt(new Date());
         workspace.setUpdatedAt(new Date());
         return workspace;
+    }
+
+    public static UserContext shapeUserContext() {
+        UserContext userContext = new UserContext();
+        userContext.setUserId(5L);
+        userContext.setUserEmail("test@test.ru");
+        return userContext;
     }
 
     public static String toJson(Object obj) throws JsonProcessingException {
