@@ -5,8 +5,10 @@ import com.pryabykh.userservice.dtos.UserCredentialsDto;
 import com.pryabykh.userservice.exceptions.UserAlreadyExistsException;
 import com.pryabykh.userservice.exceptions.UserNotFoundException;
 import com.pryabykh.userservice.services.UserService;
+import com.pryabykh.userservice.utils.UserContextHolder;
 import com.pryabykh.userservice.utils.UserTestUtils;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -34,6 +36,10 @@ public class UserControllerTests {
     public void registerPositive() throws Exception {
         Mockito.when(userService.register(Mockito.any()))
                 .thenReturn(UserTestUtils.shapeGetUserDto());
+        try (MockedStatic<UserContextHolder> userContextHolderMocked = Mockito.mockStatic(UserContextHolder.class)) {
+            userContextHolderMocked.when(UserContextHolder::getContext)
+                    .thenReturn(UserTestUtils.shapeEmptyUserContext());
+        }
 
         CreateUserDto createUserDto = UserTestUtils.shapeCreateUserDto();
         mockMvc.perform(post("/v1/users/register")
@@ -49,6 +55,10 @@ public class UserControllerTests {
     public void registerInvalidRequest() throws Exception {
         Mockito.when(userService.register(Mockito.any()))
                 .thenThrow(ConstraintViolationException.class);
+        try (MockedStatic<UserContextHolder> userContextHolderMocked = Mockito.mockStatic(UserContextHolder.class)) {
+            userContextHolderMocked.when(UserContextHolder::getContext)
+                    .thenReturn(UserTestUtils.shapeEmptyUserContext());
+        }
 
         CreateUserDto createUserDto = UserTestUtils.shapeInvalidCreateUserDto();
         mockMvc.perform(post("/v1/users/register")
@@ -61,6 +71,10 @@ public class UserControllerTests {
     public void registerUserAlreadyExists() throws Exception {
         Mockito.when(userService.register(Mockito.any()))
                 .thenThrow(UserAlreadyExistsException.class);
+        try (MockedStatic<UserContextHolder> userContextHolderMocked = Mockito.mockStatic(UserContextHolder.class)) {
+            userContextHolderMocked.when(UserContextHolder::getContext)
+                    .thenReturn(UserTestUtils.shapeEmptyUserContext());
+        }
 
         CreateUserDto createUserDto = UserTestUtils.shapeCreateUserDto();
         mockMvc.perform(post("/v1/users/register")
@@ -73,6 +87,10 @@ public class UserControllerTests {
     public void registerInternalServerError() throws Exception {
         Mockito.when(userService.register(Mockito.any()))
                 .thenThrow(RuntimeException.class);
+        try (MockedStatic<UserContextHolder> userContextHolderMocked = Mockito.mockStatic(UserContextHolder.class)) {
+            userContextHolderMocked.when(UserContextHolder::getContext)
+                    .thenReturn(UserTestUtils.shapeEmptyUserContext());
+        }
 
         CreateUserDto createUserDto = UserTestUtils.shapeCreateUserDto();
         mockMvc.perform(post("/v1/users/register")
@@ -85,6 +103,10 @@ public class UserControllerTests {
     public void checkCredentialsPositive() throws Exception {
         Mockito.when(userService.checkCredentials(Mockito.any()))
                 .thenReturn(true);
+        try (MockedStatic<UserContextHolder> userContextHolderMocked = Mockito.mockStatic(UserContextHolder.class)) {
+            userContextHolderMocked.when(UserContextHolder::getContext)
+                    .thenReturn(UserTestUtils.shapeEmptyUserContext());
+        }
 
         UserCredentialsDto userCredentialsDto = UserTestUtils.shapeUserCredentialsDtoByPassword("123456");
         mockMvc.perform(post("/v1/users/check-credentials")
@@ -98,6 +120,10 @@ public class UserControllerTests {
     public void checkCredentialsInvalidRequest() throws Exception {
         Mockito.when(userService.checkCredentials(Mockito.any()))
                 .thenThrow(ConstraintViolationException.class);
+        try (MockedStatic<UserContextHolder> userContextHolderMocked = Mockito.mockStatic(UserContextHolder.class)) {
+            userContextHolderMocked.when(UserContextHolder::getContext)
+                    .thenReturn(UserTestUtils.shapeEmptyUserContext());
+        }
 
         UserCredentialsDto userCredentialsDto = UserTestUtils.shapeUserCredentialsDtoByPassword("123456");
         mockMvc.perform(post("/v1/users/check-credentials")
@@ -110,6 +136,10 @@ public class UserControllerTests {
     public void checkCredentialsUserNotFound() throws Exception {
         Mockito.when(userService.checkCredentials(Mockito.any()))
                 .thenThrow(UserNotFoundException.class);
+        try (MockedStatic<UserContextHolder> userContextHolderMocked = Mockito.mockStatic(UserContextHolder.class)) {
+            userContextHolderMocked.when(UserContextHolder::getContext)
+                    .thenReturn(UserTestUtils.shapeEmptyUserContext());
+        }
 
         UserCredentialsDto userCredentialsDto = UserTestUtils.shapeUserCredentialsDtoByPassword("123456");
         mockMvc.perform(post("/v1/users/check-credentials")
@@ -122,6 +152,10 @@ public class UserControllerTests {
     public void checkCredentialsInternalError() throws Exception {
         Mockito.when(userService.checkCredentials(Mockito.any()))
                 .thenThrow(RuntimeException.class);
+        try (MockedStatic<UserContextHolder> userContextHolderMocked = Mockito.mockStatic(UserContextHolder.class)) {
+            userContextHolderMocked.when(UserContextHolder::getContext)
+                    .thenReturn(UserTestUtils.shapeEmptyUserContext());
+        }
 
         UserCredentialsDto userCredentialsDto = UserTestUtils.shapeUserCredentialsDtoByPassword("123456");
         mockMvc.perform(post("/v1/users/check-credentials")
@@ -134,6 +168,10 @@ public class UserControllerTests {
     public void findUserIdByEmailPositive() throws Exception {
         Mockito.when(userService.findUserIdByEmail(Mockito.anyString()))
                 .thenReturn(1L);
+        try (MockedStatic<UserContextHolder> userContextHolderMocked = Mockito.mockStatic(UserContextHolder.class)) {
+            userContextHolderMocked.when(UserContextHolder::getContext)
+                    .thenReturn(UserTestUtils.shapeEmptyUserContext());
+        }
 
         UserCredentialsDto userCredentialsDto = UserTestUtils.shapeUserCredentialsDtoByPassword("123456");
         mockMvc.perform(get("/v1/users/findIdByEmail/test@ya.ru"))
@@ -145,6 +183,10 @@ public class UserControllerTests {
     public void findUserIdByEmailInvalidRequest() throws Exception {
         Mockito.when(userService.findUserIdByEmail(Mockito.anyString()))
                 .thenThrow(ConstraintViolationException.class);
+        try (MockedStatic<UserContextHolder> userContextHolderMocked = Mockito.mockStatic(UserContextHolder.class)) {
+            userContextHolderMocked.when(UserContextHolder::getContext)
+                    .thenReturn(UserTestUtils.shapeEmptyUserContext());
+        }
 
         UserCredentialsDto userCredentialsDto = UserTestUtils.shapeUserCredentialsDtoByPassword("123456");
         mockMvc.perform(get("/v1/users/findIdByEmail/test@ya.ru"))
@@ -155,6 +197,10 @@ public class UserControllerTests {
     public void findUserIdByEmailUserNotFound() throws Exception {
         Mockito.when(userService.findUserIdByEmail(Mockito.anyString()))
                 .thenThrow(UserNotFoundException.class);
+        try (MockedStatic<UserContextHolder> userContextHolderMocked = Mockito.mockStatic(UserContextHolder.class)) {
+            userContextHolderMocked.when(UserContextHolder::getContext)
+                    .thenReturn(UserTestUtils.shapeEmptyUserContext());
+        }
 
         UserCredentialsDto userCredentialsDto = UserTestUtils.shapeUserCredentialsDtoByPassword("123456");
         mockMvc.perform(get("/v1/users/findIdByEmail/test@ya.ru"))
@@ -165,6 +211,10 @@ public class UserControllerTests {
     public void findUserIdByEmailInternalServerError() throws Exception {
         Mockito.when(userService.findUserIdByEmail(Mockito.anyString()))
                 .thenThrow(RuntimeException.class);
+        try (MockedStatic<UserContextHolder> userContextHolderMocked = Mockito.mockStatic(UserContextHolder.class)) {
+            userContextHolderMocked.when(UserContextHolder::getContext)
+                    .thenReturn(UserTestUtils.shapeEmptyUserContext());
+        }
 
         UserCredentialsDto userCredentialsDto = UserTestUtils.shapeUserCredentialsDtoByPassword("123456");
         mockMvc.perform(get("/v1/users/findIdByEmail/test@ya.ru"))

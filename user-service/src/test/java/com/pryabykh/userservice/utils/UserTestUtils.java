@@ -82,6 +82,20 @@ public class UserTestUtils {
         return userCredentialsDto;
     }
 
+    public static UserContext shapeUserContext() {
+        UserContext userContext = new UserContext();
+        userContext.setUserId(5L);
+        userContext.setUserEmail("test@test.ru");
+        return userContext;
+    }
+
+    public static UserContext shapeEmptyUserContext() {
+        UserContext userContext = new UserContext();
+        userContext.setUserId(null);
+        userContext.setUserEmail(null);
+        return userContext;
+    }
+
     public static String toJson(Object obj) throws JsonProcessingException {
         ObjectMapper objectMapper = new ObjectMapper();
         ObjectWriter objectWriter = objectMapper.writer().withDefaultPrettyPrinter();

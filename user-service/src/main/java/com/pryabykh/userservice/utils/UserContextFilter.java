@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.util.Objects;
 
 @Component
 public class UserContextFilter implements Filter {
@@ -19,8 +20,10 @@ public class UserContextFilter implements Filter {
             throws IOException, ServletException {
         HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
 
-        UserContextHolder.getContext().setUserId(Long.valueOf(httpServletRequest.getHeader(userIdHeaderName)));
-        UserContextHolder.getContext().setUserEmail(httpServletRequest.getHeader(userEmailHeaderName));
+        String userIdFromHeaders = httpServletRequest.getHeader(userIdHeaderName);
+        String userEmailFromHeaders = httpServletRequest.getHeader(userEmailHeaderName);
+        UserContextHolder.getContext().setUserId(userIdFromHeaders == null ? null : Long.valueOf(userIdFromHeaders));
+        UserContextHolder.getContext().setUserEmail(userEmailFromHeaders);
 
         filterChain.doFilter(httpServletRequest, servletResponse);
     }
