@@ -54,13 +54,13 @@ public class JwtServiceTests {
 
     @Test
     public void getUserId() {
-        String userIdForToken = "1";
+        Long userIdForToken = 1L;
         String token = JWT.create()
                 .withExpiresAt(new Date(new Date().getTime() + (15 * 60 * 1000)))
                 .withClaim(userIdClaimName, userIdForToken)
                 .withClaim(userEmailClaimName, "test@email.com")
                 .sign(algorithm);
-        String userIdResult = jwtService.getUserId(token);
+        Long userIdResult = Long.valueOf(jwtService.getUserId(token));
         Assertions.assertEquals(userIdResult, userIdForToken);
     }
 
