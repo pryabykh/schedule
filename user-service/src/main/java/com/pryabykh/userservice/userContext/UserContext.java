@@ -1,4 +1,4 @@
-package com.pryabykh.userservice.utils;
+package com.pryabykh.userservice.userContext;
 
 import lombok.Getter;
 import lombok.Setter;

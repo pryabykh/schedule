@@ -7,6 +7,7 @@ import com.pryabykh.userservice.dtos.CreateUserDto;
 import com.pryabykh.userservice.dtos.GetUserDto;
 import com.pryabykh.userservice.dtos.UserCredentialsDto;
 import com.pryabykh.userservice.models.User;
+import com.pryabykh.userservice.userContext.UserContext;
 
 import java.util.Date;
 import java.util.Optional;

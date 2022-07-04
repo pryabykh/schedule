@@ -1,4 +1,4 @@
-package com.pryabykh.userservice.utils;
+package com.pryabykh.authserver.userContext;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -6,7 +6,6 @@ import org.springframework.stereotype.Component;
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
-import java.util.Objects;
 
 @Component
 public class UserContextFilter implements Filter {
@@ -18,14 +17,18 @@ public class UserContextFilter implements Filter {
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
             throws IOException, ServletException {
-        HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
+        try {
+            HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
 
-        String userIdFromHeaders = httpServletRequest.getHeader(userIdHeaderName);
-        String userEmailFromHeaders = httpServletRequest.getHeader(userEmailHeaderName);
-        UserContextHolder.getContext().setUserId(userIdFromHeaders == null ? null : Long.valueOf(userIdFromHeaders));
-        UserContextHolder.getContext().setUserEmail(userEmailFromHeaders);
+            String userIdFromHeaders = httpServletRequest.getHeader(userIdHeaderName);
+            String userEmailFromHeaders = httpServletRequest.getHeader(userEmailHeaderName);
+            UserContextHolder.getContext().setUserId(userIdFromHeaders == null ? null : Long.valueOf(userIdFromHeaders));
+            UserContextHolder.getContext().setUserEmail(userEmailFromHeaders);
 
-        filterChain.doFilter(httpServletRequest, servletResponse);
+            filterChain.doFilter(httpServletRequest, servletResponse);
+        } finally {
+            UserContextHolder.removeContext();
+        }
     }
 
     @Override

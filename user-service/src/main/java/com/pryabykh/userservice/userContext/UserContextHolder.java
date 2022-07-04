@@ -1,4 +1,4 @@
-package com.pryabykh.userservice.utils;
+package com.pryabykh.userservice.userContext;
 
 import org.springframework.util.Assert;
 
@@ -14,6 +14,10 @@ public class UserContextHolder {
 
         }
         return userContext.get();
+    }
+
+    public static void removeContext() {
+        userContext.remove();
     }
 
     public static void setContext(UserContext context) {

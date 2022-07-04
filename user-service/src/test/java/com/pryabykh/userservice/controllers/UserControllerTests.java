@@ -5,7 +5,7 @@ import com.pryabykh.userservice.dtos.UserCredentialsDto;
 import com.pryabykh.userservice.exceptions.UserAlreadyExistsException;
 import com.pryabykh.userservice.exceptions.UserNotFoundException;
 import com.pryabykh.userservice.services.UserService;
-import com.pryabykh.userservice.utils.UserContextHolder;
+import com.pryabykh.userservice.userContext.UserContextHolder;
 import com.pryabykh.userservice.utils.UserTestUtils;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
