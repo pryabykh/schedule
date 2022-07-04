@@ -13,6 +13,8 @@ public class UserContextFilter implements Filter {
     private String userIdHeaderName;
     @Value("${user-email-header-name}")
     private String userEmailHeaderName;
+    @Value("${correlation-id-header-name}")
+    private String correlationIdHeaderName;
 
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
@@ -22,8 +24,10 @@ public class UserContextFilter implements Filter {
 
             String userIdFromHeaders = httpServletRequest.getHeader(userIdHeaderName);
             String userEmailFromHeaders = httpServletRequest.getHeader(userEmailHeaderName);
+            String correlationIdFromHeaders = httpServletRequest.getHeader(correlationIdHeaderName);
             UserContextHolder.getContext().setUserId(userIdFromHeaders == null ? null : Long.valueOf(userIdFromHeaders));
             UserContextHolder.getContext().setUserEmail(userEmailFromHeaders);
+            UserContextHolder.getContext().setCorrelationId(correlationIdFromHeaders);
 
             filterChain.doFilter(httpServletRequest, servletResponse);
         } finally {

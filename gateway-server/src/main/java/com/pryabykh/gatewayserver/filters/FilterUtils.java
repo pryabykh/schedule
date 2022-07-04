@@ -12,6 +12,8 @@ import java.util.List;
 public class FilterUtils {
     @Value("${auth-token-header-name}")
     private String userEmailHeaderName;
+    @Value("${correlation-id-header-name}")
+    private String correlationIdHeaderName;
 
     public String getAuthToken(HttpHeaders requestHeaders) {
         if (requestHeaders.get(userEmailHeaderName) != null) {
@@ -28,6 +30,15 @@ public class FilterUtils {
                                 .header(name, value)
                                 .build())
                 .build();
+    }
+
+    public String getCorrelationId(HttpHeaders requestHeaders) {
+        if (requestHeaders.get(correlationIdHeaderName) != null) {
+            List<String> header = requestHeaders.get(correlationIdHeaderName);
+            return header.stream().findFirst().get();
+        } else {
+            return null;
+        }
     }
 
 }

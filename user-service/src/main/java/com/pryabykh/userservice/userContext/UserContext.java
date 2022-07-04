@@ -8,4 +8,5 @@ import lombok.Setter;
 public class UserContext {
     private Long userId = null;
     private String userEmail = "";
+    private String correlationId = "";
 }
