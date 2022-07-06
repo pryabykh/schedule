@@ -80,7 +80,7 @@ public class UserControllerTests {
         mockMvc.perform(post("/v1/users/register")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(UserTestUtils.toJson(createUserDto)))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().isConflict());
     }
 
     @Test

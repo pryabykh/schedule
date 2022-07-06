@@ -37,10 +37,16 @@ public class UserController {
     }
 
 
-    @ExceptionHandler({ConstraintViolationException.class, UserAlreadyExistsException.class})
+    @ExceptionHandler({ConstraintViolationException.class})
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseEntity<String> handleConstraintViolationException() {
         return new ResponseEntity<>("Bad request", HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler({UserAlreadyExistsException.class})
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ResponseEntity<String> handleUserAlreadyExistsException() {
+        return new ResponseEntity<>("User with that email already exists", HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler(UserNotFoundException.class)
