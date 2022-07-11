@@ -22,37 +22,37 @@ public class Subject {
     private String name;
 
     @Column(name = "first_grade")
-    private int firstGrade;
+    private Integer firstGrade;
 
     @Column(name = "second_grade")
-    private int secondGrade;
+    private Integer secondGrade;
 
     @Column(name = "third_grade")
-    private int thirdGrade;
+    private Integer thirdGrade;
 
     @Column(name = "fourth_grade")
-    private int fourthGrade;
+    private Integer fourthGrade;
 
     @Column(name = "fifth_grade")
-    private int fifthGrade;
+    private Integer fifthGrade;
 
     @Column(name = "sixth_grade")
-    private int sixthGrade;
+    private Integer sixthGrade;
 
     @Column(name = "seventh_grade")
-    private int seventhGrade;
+    private Integer seventhGrade;
 
     @Column(name = "eighth_grade")
-    private int eighthGrade;
+    private Integer eighthGrade;
 
     @Column(name = "ninth_grade")
-    private int ninthGrade;
+    private Integer ninthGrade;
 
     @Column(name = "tenth_grade")
-    private int tenthGrade;
+    private Integer tenthGrade;
 
     @Column(name = "eleventh_grade")
-    private int eleventhGrade;
+    private Integer eleventhGrade;
 
     @Override
     public boolean equals(Object o) {
