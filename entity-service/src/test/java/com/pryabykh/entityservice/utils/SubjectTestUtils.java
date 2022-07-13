@@ -1,6 +1,6 @@
 package com.pryabykh.entityservice.utils;
 
-import com.pryabykh.entityservice.dtos.response.SubjectDto;
+import com.pryabykh.entityservice.dtos.response.SubjectResponseDto;
 import com.pryabykh.entityservice.models.Subject;
 
 import java.util.ArrayList;
@@ -26,8 +26,8 @@ public class SubjectTestUtils {
         return new ArrayList<>(Collections.singletonList(subject));
     }
 
-    public static List<SubjectDto> shapeListOfSubjectDtos() {
-        SubjectDto subject = new SubjectDto();
+    public static List<SubjectResponseDto> shapeListOfSubjectDtos() {
+        SubjectResponseDto subject = new SubjectResponseDto();
         subject.setId(1L);
         subject.setName("Русский язык");
         subject.setFirstGrade(1);

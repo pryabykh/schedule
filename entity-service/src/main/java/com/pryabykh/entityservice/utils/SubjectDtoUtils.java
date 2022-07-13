@@ -1,11 +1,11 @@
 package com.pryabykh.entityservice.utils;
 
-import com.pryabykh.entityservice.dtos.response.SubjectDto;
+import com.pryabykh.entityservice.dtos.response.SubjectResponseDto;
 import com.pryabykh.entityservice.models.Subject;
 
 public class SubjectDtoUtils {
-    public static SubjectDto convertFromEntity(Subject subject) {
-        SubjectDto subjectDto = new SubjectDto();
+    public static SubjectResponseDto convertFromEntity(Subject subject) {
+        SubjectResponseDto subjectDto = new SubjectResponseDto();
         subjectDto.setId(subject.getId());
         subjectDto.setName(subject.getName());
         subjectDto.setFirstGrade(subject.getFirstGrade());

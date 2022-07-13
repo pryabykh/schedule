@@ -1,6 +1,6 @@
 package com.pryabykh.entityservice.controllers;
 
-import com.pryabykh.entityservice.dtos.response.SubjectDto;
+import com.pryabykh.entityservice.dtos.response.SubjectResponseDto;
 import com.pryabykh.entityservice.services.SubjectService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +18,7 @@ public class SubjectController {
     }
 
     @GetMapping("")
-    ResponseEntity<List<SubjectDto>> fetchAll() {
+    ResponseEntity<List<SubjectResponseDto>> fetchAll() {
         return ResponseEntity.ok(subjectService.fetchAll());
     }
 

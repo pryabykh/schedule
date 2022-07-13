@@ -3,7 +3,7 @@ package com.pryabykh.entityservice.dtos.response;
 import lombok.Data;
 
 @Data
-public class SubjectDto {
+public class SubjectResponseDto {
     private Long id;
     private String name;
     private Integer firstGrade;

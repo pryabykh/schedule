@@ -1,6 +1,6 @@
 package com.pryabykh.entityservice.services;
 
-import com.pryabykh.entityservice.dtos.response.SubjectDto;
+import com.pryabykh.entityservice.dtos.response.SubjectResponseDto;
 import com.pryabykh.entityservice.repositories.SubjectRepository;
 import com.pryabykh.entityservice.utils.SubjectTestUtils;
 import org.junit.jupiter.api.Assertions;
@@ -25,7 +25,7 @@ public class SubjectServiceTests {
         Mockito.when(subjectRepository.findAll())
                 .thenReturn(SubjectTestUtils.shapeListOfSubjectEntities());
 
-        List<SubjectDto> subjects = subjectService.fetchAll();
+        List<SubjectResponseDto> subjects = subjectService.fetchAll();
         Assertions.assertNotNull(subjects);
         Assertions.assertTrue(subjects.size() > 0);
         Assertions.assertNotNull(subjects.get(0).getFirstGrade());
