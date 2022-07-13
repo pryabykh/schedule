@@ -1,11 +1,8 @@
 package com.pryabykh.entityservice.controllers;
 
 import com.pryabykh.entityservice.services.SubjectService;
-import com.pryabykh.entityservice.userContext.UserContextHolder;
 import com.pryabykh.entityservice.utils.SubjectTestUtils;
-import com.pryabykh.entityservice.utils.TestUtils;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockedStatic;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -31,11 +28,6 @@ public class SubjectControllerTests {
         Mockito.when(subjectService.fetchAll())
                 .thenReturn(SubjectTestUtils.shapeListOfSubjectDtos());
 
-        try (MockedStatic<UserContextHolder> userContextHolderMocked = Mockito.mockStatic(UserContextHolder.class)) {
-            userContextHolderMocked.when(UserContextHolder::getContext)
-                    .thenReturn(TestUtils.shapeUserContext());
-        }
-
         mockMvc.perform(get("/v1/subjects"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isNotEmpty())
@@ -58,10 +50,6 @@ public class SubjectControllerTests {
     public void fetchAllInternalError() throws Exception {
         Mockito.when(subjectService.fetchAll())
                 .thenThrow(RuntimeException.class);
-        try (MockedStatic<UserContextHolder> userContextHolderMocked = Mockito.mockStatic(UserContextHolder.class)) {
-            userContextHolderMocked.when(UserContextHolder::getContext)
-                    .thenReturn(TestUtils.shapeUserContext());
-        }
 
         mockMvc.perform(get("/v1/subjects"))
                 .andExpect(status().isInternalServerError());

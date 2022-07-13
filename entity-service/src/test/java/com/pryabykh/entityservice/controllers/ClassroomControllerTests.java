@@ -1,7 +1,9 @@
 package com.pryabykh.entityservice.controllers;
 
 import com.pryabykh.entityservice.dtos.request.ClassroomRequestDto;
-import com.pryabykh.entityservice.exceptions.ClassroomAlreadyExistsException;
+import com.pryabykh.entityservice.exceptions.EntityAlreadyExistsException;
+import com.pryabykh.entityservice.exceptions.EntityNotFoundException;
+import com.pryabykh.entityservice.exceptions.PermissionDeniedException;
 import com.pryabykh.entityservice.services.ClassroomService;
 import com.pryabykh.entityservice.userContext.UserContextHolder;
 import com.pryabykh.entityservice.utils.ClassroomTestUtils;
@@ -19,6 +21,8 @@ import org.springframework.test.web.servlet.MockMvc;
 import javax.validation.ConstraintViolationException;
 
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.notNullValue;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -35,10 +39,6 @@ public class ClassroomControllerTests {
     public void createPositive() throws Exception {
         Mockito.when(classroomService.create(Mockito.any()))
                 .thenReturn(ClassroomTestUtils.shapeClassroomResponseDto());
-        try (MockedStatic<UserContextHolder> userContextHolderMocked = Mockito.mockStatic(UserContextHolder.class)) {
-            userContextHolderMocked.when(UserContextHolder::getContext)
-                    .thenReturn(TestUtils.shapeUserContext());
-        }
 
         ClassroomRequestDto classroomRequestDto = ClassroomTestUtils.shapeClassroomRequestDto();
         mockMvc.perform(post("/v1/classrooms")
@@ -47,6 +47,7 @@ public class ClassroomControllerTests {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.number", equalTo(classroomRequestDto.getNumber())))
                 .andExpect(jsonPath("$.capacity", equalTo(classroomRequestDto.getCapacity())))
+                .andExpect(jsonPath("$.creatorId", notNullValue()))
                 .andExpect(jsonPath("$.description", equalTo(classroomRequestDto.getDescription())));
     }
 
@@ -54,10 +55,6 @@ public class ClassroomControllerTests {
     public void createInvalidRequest() throws Exception {
         Mockito.when(classroomService.create(Mockito.any()))
                 .thenThrow(ConstraintViolationException.class);
-        try (MockedStatic<UserContextHolder> userContextHolderMocked = Mockito.mockStatic(UserContextHolder.class)) {
-            userContextHolderMocked.when(UserContextHolder::getContext)
-                    .thenReturn(TestUtils.shapeUserContext());
-        }
 
         ClassroomRequestDto classroomRequestDto = ClassroomTestUtils.shapeInvalidClassroomRequestDto();
         mockMvc.perform(post("/v1/classrooms")
@@ -69,11 +66,7 @@ public class ClassroomControllerTests {
     @Test
     public void createClassroomAlreadyExists() throws Exception {
         Mockito.when(classroomService.create(Mockito.any()))
-                .thenThrow(ClassroomAlreadyExistsException.class);
-        try (MockedStatic<UserContextHolder> userContextHolderMocked = Mockito.mockStatic(UserContextHolder.class)) {
-            userContextHolderMocked.when(UserContextHolder::getContext)
-                    .thenReturn(TestUtils.shapeUserContext());
-        }
+                .thenThrow(EntityAlreadyExistsException.class);
 
         ClassroomRequestDto classroomRequestDto = ClassroomTestUtils.shapeClassroomRequestDto();
         mockMvc.perform(post("/v1/classrooms")
@@ -86,15 +79,54 @@ public class ClassroomControllerTests {
     public void createInternalServerError() throws Exception {
         Mockito.when(classroomService.create(Mockito.any()))
                 .thenThrow(RuntimeException.class);
-        try (MockedStatic<UserContextHolder> userContextHolderMocked = Mockito.mockStatic(UserContextHolder.class)) {
-            userContextHolderMocked.when(UserContextHolder::getContext)
-                    .thenReturn(TestUtils.shapeUserContext());
-        }
 
         ClassroomRequestDto classroomRequestDto = ClassroomTestUtils.shapeClassroomRequestDto();
         mockMvc.perform(post("/v1/classrooms")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(TestUtils.toJson(classroomRequestDto)))
+                .andExpect(status().isInternalServerError());
+    }
+
+    @Test
+    public void deletePositive() throws Exception {
+        mockMvc.perform(delete("/v1/classrooms/1"))
+                .andExpect(status().isOk());
+        Mockito.verify(classroomService).delete(Mockito.anyLong());
+    }
+
+    @Test
+    public void deletePermissionDenied() throws Exception {
+        Mockito.doThrow(PermissionDeniedException.class)
+                        .when(classroomService).delete(Mockito.anyLong());
+
+        mockMvc.perform(delete("/v1/classrooms/1"))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    public void deleteNonExistingClassroom() throws Exception {
+        Mockito.doThrow(EntityNotFoundException.class)
+                .when(classroomService).delete(Mockito.anyLong());
+
+        mockMvc.perform(delete("/v1/classrooms/1"))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void deleteInvalidId() throws Exception {
+        Mockito.doThrow(ConstraintViolationException.class)
+                .when(classroomService).delete(Mockito.anyLong());
+
+        mockMvc.perform(delete("/v1/classrooms/1"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void deleteIInternalServerError() throws Exception {
+        Mockito.doThrow(RuntimeException.class)
+                .when(classroomService).delete(Mockito.anyLong());
+
+        mockMvc.perform(delete("/v1/classrooms/1"))
                 .andExpect(status().isInternalServerError());
     }
 }

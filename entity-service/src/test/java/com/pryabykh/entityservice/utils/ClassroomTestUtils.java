@@ -29,6 +29,7 @@ public class ClassroomTestUtils {
         classroom.setNumber("1-B");
         classroom.setCapacity(20);
         classroom.setDescription("Кабинет химии");
+        classroom.setCreatorId(1L);
         classroom.setVersion(1);
         classroom.setCreatedAt(new Date());
         classroom.setUpdatedAt(new Date());
@@ -41,6 +42,7 @@ public class ClassroomTestUtils {
         classroomDto.setNumber("1-B");
         classroomDto.setCapacity(20);
         classroomDto.setDescription("Кабинет химии");
+        classroomDto.setCreatorId(1L);
         classroomDto.setVersion(1);
         classroomDto.setCreatedAt(new Date());
         classroomDto.setUpdatedAt(new Date());

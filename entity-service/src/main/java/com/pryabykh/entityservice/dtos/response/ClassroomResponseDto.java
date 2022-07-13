@@ -10,6 +10,7 @@ public class ClassroomResponseDto {
     private String number;
     private int capacity;
     private String description;
+    private Long creatorId;
     private int version;
     private Date createdAt;
     private Date updatedAt;

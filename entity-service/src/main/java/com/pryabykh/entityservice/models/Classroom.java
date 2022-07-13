@@ -28,6 +28,9 @@ public class Classroom {
     @Column(name = "description")
     private String description;
 
+    @Column(name = "creator_id")
+    private Long creatorId;
+
     @Version
     @Column(name = "version")
     private int version;

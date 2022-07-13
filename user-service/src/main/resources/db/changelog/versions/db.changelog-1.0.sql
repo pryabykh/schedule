@@ -1,6 +1,6 @@
 --liquibase formatted sql
 
---changeset pryabykh:1
+--changeset user-service:1
 CREATE TABLE users (
     id bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
     email varchar(255) NOT NULL UNIQUE,

@@ -11,6 +11,7 @@ public class ClassroomDtoUtils {
         classroomDto.setNumber(classroom.getNumber());
         classroomDto.setCapacity(classroom.getCapacity());
         classroomDto.setDescription(classroom.getDescription());
+        classroomDto.setCreatorId(classroom.getCreatorId());
         classroomDto.setVersion(classroom.getVersion());
         classroomDto.setCreatedAt(classroom.getCreatedAt());
         classroomDto.setUpdatedAt(classroom.getUpdatedAt());
