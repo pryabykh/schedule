@@ -8,7 +8,7 @@ import javax.validation.constraints.Size;
 
 @Data
 public class BaseUserDto {
-    @NotEmpty @Email
+    @NotEmpty @Email @Size(min = 1, max = 255)
     private String email;
     @NotEmpty @Size(min = 1, max = 255)
     private String firstName;
