@@ -1,6 +1,7 @@
 package com.pryabykh.entityservice.services;
 
 import com.pryabykh.entityservice.dtos.request.ClassroomRequestDto;
+import com.pryabykh.entityservice.dtos.request.PageSizeDto;
 import com.pryabykh.entityservice.dtos.response.ClassroomResponseDto;
 import com.pryabykh.entityservice.exceptions.EntityAlreadyExistsException;
 import com.pryabykh.entityservice.exceptions.EntityNotFoundException;
@@ -9,6 +10,10 @@ import com.pryabykh.entityservice.models.Classroom;
 import com.pryabykh.entityservice.repositories.ClassroomRepository;
 import com.pryabykh.entityservice.userContext.UserContextHolder;
 import com.pryabykh.entityservice.utils.ClassroomDtoUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,6 +40,33 @@ public class ClassroomServiceImpl implements ClassroomService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public Page<ClassroomResponseDto> fetchAll(PageSizeDto pageSizeDto) {
+        Pageable pageable = createPageable(pageSizeDto);
+        Long userId = UserContextHolder.getContext().getUserId();
+        if (!hasFiltration(pageSizeDto)) {
+            return classroomRepository.findAllByCreatorId(userId, pageable)
+                    .map(ClassroomDtoUtils::convertFromEntity);
+        }
+        return fetchAllByFilter(pageSizeDto.getFilterBy(), pageSizeDto.getFilterValue(), pageable)
+                .map(ClassroomDtoUtils::convertFromEntity);
+    }
+
+    @Override
+    public ClassroomResponseDto fetchById(Long id) {
+        Optional<Classroom> optionalClassroom = classroomRepository.findById(id);
+        if (optionalClassroom.isEmpty()) {
+            throw new EntityNotFoundException();
+        }
+        Long creatorId = optionalClassroom.get().getCreatorId();
+        Long currentUserId = UserContextHolder.getContext().getUserId();
+        if (!creatorId.equals(currentUserId)) {
+            throw new PermissionDeniedException();
+        }
+        return ClassroomDtoUtils.convertFromEntity(optionalClassroom.get());
+    }
+
+    @Override
     @Transactional
     public void delete(Long id) {
         Optional<Classroom> optionalClassroom = classroomRepository.findById(id);
@@ -51,5 +83,48 @@ public class ClassroomServiceImpl implements ClassroomService {
 
     private boolean classroomWithGivenNumberAlreadyExists(ClassroomRequestDto classroomDto) {
         return classroomRepository.findByNumber(classroomDto.getNumber()).isPresent();
+    }
+
+    private Pageable createPageable(PageSizeDto pageSizeDto) {
+        int page = pageSizeDto.getPage();
+        int size = pageSizeDto.getSize();
+        String sortBy = pageSizeDto.getSortBy();
+        String sortDirection = pageSizeDto.getSortDirection();
+        if (sortBy == null || sortDirection == null) {
+            return PageRequest.of(page, size);
+        }
+        if (sortDirection.equalsIgnoreCase("ASC")) {
+            return PageRequest.of(page, size, Sort.by(sortBy).ascending());
+        } else if (sortDirection.equalsIgnoreCase("DESC")) {
+            return PageRequest.of(page, size, Sort.by(sortBy).descending());
+        } else {
+            throw new IllegalArgumentException("sortDirection can be ASC or DESC only");
+        }
+    }
+
+    private boolean hasFiltration(PageSizeDto pageSizeDto) {
+        String filterBy = pageSizeDto.getFilterBy();
+        String filterValue = pageSizeDto.getFilterValue();
+        if (filterBy == null || filterBy.equals("") || filterValue == null  || filterValue.equals("")) {
+            return false;
+        }
+        return true;
+    }
+
+    private Page<Classroom> fetchAllByFilter(String filterBy, String filterValue, Pageable pageable) {
+        switch (filterBy.toLowerCase()) {
+            case "number": {
+                return classroomRepository.findByNumberContainingIgnoreCase(filterValue, pageable);
+            }
+            case "capacity": {
+                return classroomRepository.findByCapacityContaining(Integer.parseInt(filterValue), pageable);
+            }
+            case "description": {
+                return classroomRepository.findByDescriptionContainingIgnoreCase(filterValue, pageable);
+            }
+            default: {
+                throw new IllegalArgumentException("Unsupported filter criteria - " + filterBy);
+            }
+        }
     }
 }

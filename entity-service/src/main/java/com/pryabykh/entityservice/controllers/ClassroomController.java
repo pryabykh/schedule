@@ -1,11 +1,13 @@
 package com.pryabykh.entityservice.controllers;
 
 import com.pryabykh.entityservice.dtos.request.ClassroomRequestDto;
+import com.pryabykh.entityservice.dtos.request.PageSizeDto;
 import com.pryabykh.entityservice.dtos.response.ClassroomResponseDto;
 import com.pryabykh.entityservice.exceptions.EntityAlreadyExistsException;
 import com.pryabykh.entityservice.exceptions.EntityNotFoundException;
 import com.pryabykh.entityservice.exceptions.PermissionDeniedException;
 import com.pryabykh.entityservice.services.ClassroomService;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,6 +26,16 @@ public class ClassroomController {
     @PostMapping("")
     ResponseEntity<ClassroomResponseDto> create(@RequestBody ClassroomRequestDto classroomRequestDto) {
         return ResponseEntity.ok(classroomService.create(classroomRequestDto));
+    }
+
+    @PostMapping("/all")
+    ResponseEntity<Page<ClassroomResponseDto>> fetchAll(@RequestBody PageSizeDto pageSizeDto) {
+        return ResponseEntity.ok(classroomService.fetchAll(pageSizeDto));
+    }
+
+    @GetMapping("/{id}")
+    ResponseEntity<ClassroomResponseDto> fetchById(@PathVariable("id") Long id) {
+        return ResponseEntity.ok(classroomService.fetchById(id));
     }
 
     @DeleteMapping("/{id}")

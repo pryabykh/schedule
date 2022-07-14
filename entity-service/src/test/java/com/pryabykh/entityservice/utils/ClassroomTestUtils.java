@@ -3,8 +3,13 @@ package com.pryabykh.entityservice.utils;
 import com.pryabykh.entityservice.dtos.request.ClassroomRequestDto;
 import com.pryabykh.entityservice.dtos.response.ClassroomResponseDto;
 import com.pryabykh.entityservice.models.Classroom;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.support.PageableExecutionUtils;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 public class ClassroomTestUtils {
     public static ClassroomRequestDto shapeClassroomRequestDto() {
@@ -47,5 +52,33 @@ public class ClassroomTestUtils {
         classroomDto.setCreatedAt(new Date());
         classroomDto.setUpdatedAt(new Date());
         return classroomDto;
+    }
+
+    public static Page<ClassroomResponseDto> shapePageOfClassroomResponseDto(int page, int size, int total) {
+        List<ClassroomResponseDto> classroomResponseDtoList = new ArrayList<>();
+        for (int i = 0; i < total; i++) {
+            ClassroomResponseDto classroomResponseDto = shapeClassroomResponseDto();
+            classroomResponseDto.setId((long) i);
+            classroomResponseDto.setNumber(String.valueOf(i));
+            classroomResponseDtoList.add(classroomResponseDto);
+        }
+        return PageableExecutionUtils.getPage(
+                classroomResponseDtoList,
+                PageRequest.of(page, size),
+                () -> total);
+    }
+
+    public static Page<Classroom> shapePageOfClassroomResponseEntity(int page, int size, int total) {
+        List<Classroom> classrooms = new ArrayList<>();
+        for (int i = 0; i < total; i++) {
+            Classroom classroom = shapeClassroomEntity();
+            classroom.setId((long) i);
+            classroom.setNumber(String.valueOf(i));
+            classrooms.add(classroom);
+        }
+        return PageableExecutionUtils.getPage(
+                classrooms,
+                PageRequest.of(page, size),
+                () -> total);
     }
 }

@@ -1,5 +1,6 @@
 package com.pryabykh.entityservice.services;
 
+import com.pryabykh.entityservice.dtos.request.PageSizeDto;
 import com.pryabykh.entityservice.dtos.response.ClassroomResponseDto;
 import com.pryabykh.entityservice.exceptions.EntityAlreadyExistsException;
 import com.pryabykh.entityservice.exceptions.EntityNotFoundException;
@@ -17,9 +18,11 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
 import org.springframework.test.context.ActiveProfiles;
 
 import javax.validation.ConstraintViolationException;
+import java.util.List;
 import java.util.Optional;
 
 @SpringBootTest
@@ -113,6 +116,278 @@ public class ClassroomServiceTests {
                 classroomService.delete(null));
     }
 
+    @Test
+    public void fetchAllPositiveWithoutSortingAndWithoutFiltration() {
+        PageSizeDto pageSizeDto = TestUtils.shapePageSizeDto(1, 10);
+        pageSizeDto.setSortBy(null);
+        pageSizeDto.setSortDirection(null);
+        pageSizeDto.setFilterBy(null);
+        pageSizeDto.setFilterValue(null);
+
+        try (MockedStatic<UserContextHolder> userContextHolderMocked = Mockito.mockStatic(UserContextHolder.class)) {
+            userContextHolderMocked.when(UserContextHolder::getContext)
+                    .thenReturn(TestUtils.shapeUserContext());
+            Mockito.when(classroomRepository.findAllByCreatorId(Mockito.anyLong(), Mockito.any()))
+                    .thenReturn(ClassroomTestUtils.shapePageOfClassroomResponseEntity(1, 10, 20));
+
+            Page<ClassroomResponseDto> result = classroomService.fetchAll(pageSizeDto);
+
+            Mockito.verify(classroomRepository).findAllByCreatorId(Mockito.anyLong(), Mockito.any());
+            Assertions.assertNotNull(result);
+            List<ClassroomResponseDto> content = result.getContent();
+            Assertions.assertNotNull(content.get(0).getId());
+            Assertions.assertNotNull(content.get(0).getCreatorId());
+            Assertions.assertNotNull(content.get(0).getNumber());
+            Assertions.assertTrue(content.get(0).getCapacity() > 0);
+            Assertions.assertNotNull(content.get(0).getDescription());
+            Assertions.assertTrue(content.get(0).getVersion() > 0);
+            Assertions.assertNotNull(content.get(0).getCreatedAt());
+            Assertions.assertNotNull(content.get(0).getUpdatedAt());
+        }
+    }
+
+    @Test
+    public void fetchAllPositiveWithSortingAscAndWithoutFiltration() {
+        PageSizeDto pageSizeDto = TestUtils.shapePageSizeDto(1, 10);
+        pageSizeDto.setSortBy("id");
+        pageSizeDto.setSortDirection("asc");
+        pageSizeDto.setFilterBy(null);
+        pageSizeDto.setFilterValue(null);
+
+        try (MockedStatic<UserContextHolder> userContextHolderMocked = Mockito.mockStatic(UserContextHolder.class)) {
+            userContextHolderMocked.when(UserContextHolder::getContext)
+                    .thenReturn(TestUtils.shapeUserContext());
+            Mockito.when(classroomRepository.findAllByCreatorId(Mockito.anyLong(), Mockito.any()))
+                    .thenReturn(ClassroomTestUtils.shapePageOfClassroomResponseEntity(1, 10, 20));
+
+            Page<ClassroomResponseDto> result = classroomService.fetchAll(pageSizeDto);
+
+            Mockito.verify(classroomRepository).findAllByCreatorId(Mockito.anyLong(), Mockito.any());
+            Assertions.assertNotNull(result);
+            List<ClassroomResponseDto> content = result.getContent();
+            Assertions.assertNotNull(content.get(0).getId());
+            Assertions.assertNotNull(content.get(0).getCreatorId());
+            Assertions.assertNotNull(content.get(0).getNumber());
+            Assertions.assertTrue(content.get(0).getCapacity() > 0);
+            Assertions.assertNotNull(content.get(0).getDescription());
+            Assertions.assertTrue(content.get(0).getVersion() > 0);
+            Assertions.assertNotNull(content.get(0).getCreatedAt());
+            Assertions.assertNotNull(content.get(0).getUpdatedAt());
+        }
+    }
+
+    @Test
+    public void fetchAllPositiveWithSortingDescAndWithoutFiltration() {
+        PageSizeDto pageSizeDto = TestUtils.shapePageSizeDto(1, 10);
+        pageSizeDto.setSortBy("id");
+        pageSizeDto.setSortDirection("desc");
+        pageSizeDto.setFilterBy(null);
+        pageSizeDto.setFilterValue(null);
+
+        try (MockedStatic<UserContextHolder> userContextHolderMocked = Mockito.mockStatic(UserContextHolder.class)) {
+            userContextHolderMocked.when(UserContextHolder::getContext)
+                    .thenReturn(TestUtils.shapeUserContext());
+            Mockito.when(classroomRepository.findAllByCreatorId(Mockito.anyLong(), Mockito.any()))
+                    .thenReturn(ClassroomTestUtils.shapePageOfClassroomResponseEntity(1, 10, 20));
+
+            Page<ClassroomResponseDto> result = classroomService.fetchAll(pageSizeDto);
+
+            Mockito.verify(classroomRepository).findAllByCreatorId(Mockito.anyLong(), Mockito.any());
+            Assertions.assertNotNull(result);
+            List<ClassroomResponseDto> content = result.getContent();
+            Assertions.assertNotNull(content.get(0).getId());
+            Assertions.assertNotNull(content.get(0).getCreatorId());
+            Assertions.assertNotNull(content.get(0).getNumber());
+            Assertions.assertTrue(content.get(0).getCapacity() > 0);
+            Assertions.assertNotNull(content.get(0).getDescription());
+            Assertions.assertTrue(content.get(0).getVersion() > 0);
+            Assertions.assertNotNull(content.get(0).getCreatedAt());
+            Assertions.assertNotNull(content.get(0).getUpdatedAt());
+        }
+    }
+
+    @Test
+    public void fetchAllPositiveWithIllegalSortingDirection() {
+        PageSizeDto pageSizeDto = TestUtils.shapePageSizeDto(1, 10);
+        pageSizeDto.setSortBy("id");
+        pageSizeDto.setSortDirection("test");
+        pageSizeDto.setFilterBy(null);
+
+        Assertions.assertThrows(IllegalArgumentException.class, () ->
+                classroomService.fetchAll(pageSizeDto));
+    }
+
+    @Test
+    public void fetchAllPositiveWithFiltrationByNumber() {
+        PageSizeDto pageSizeDto = TestUtils.shapePageSizeDto(1, 10);
+        pageSizeDto.setSortBy("id");
+        pageSizeDto.setSortDirection("desc");
+        pageSizeDto.setFilterBy("number");
+        pageSizeDto.setFilterValue("test");
+
+        try (MockedStatic<UserContextHolder> userContextHolderMocked = Mockito.mockStatic(UserContextHolder.class)) {
+            userContextHolderMocked.when(UserContextHolder::getContext)
+                    .thenReturn(TestUtils.shapeUserContext());
+            Mockito.when(classroomRepository.findByNumberContainingIgnoreCase(Mockito.anyString(), Mockito.any()))
+                    .thenReturn(ClassroomTestUtils.shapePageOfClassroomResponseEntity(1, 10, 20));
+
+            Page<ClassroomResponseDto> result = classroomService.fetchAll(pageSizeDto);
+
+            Mockito.verify(classroomRepository).findByNumberContainingIgnoreCase(Mockito.anyString(), Mockito.any());
+            Assertions.assertNotNull(result);
+            List<ClassroomResponseDto> content = result.getContent();
+            Assertions.assertNotNull(content.get(0).getId());
+            Assertions.assertNotNull(content.get(0).getCreatorId());
+            Assertions.assertNotNull(content.get(0).getNumber());
+            Assertions.assertTrue(content.get(0).getCapacity() > 0);
+            Assertions.assertNotNull(content.get(0).getDescription());
+            Assertions.assertTrue(content.get(0).getVersion() > 0);
+            Assertions.assertNotNull(content.get(0).getCreatedAt());
+            Assertions.assertNotNull(content.get(0).getUpdatedAt());
+        }
+    }
+
+    @Test
+    public void fetchAllPositiveWithFiltrationByCapacity() {
+        PageSizeDto pageSizeDto = TestUtils.shapePageSizeDto(1, 10);
+        pageSizeDto.setSortBy("id");
+        pageSizeDto.setSortDirection("desc");
+        pageSizeDto.setFilterBy("capacity");
+        pageSizeDto.setFilterValue("15");
+
+        try (MockedStatic<UserContextHolder> userContextHolderMocked = Mockito.mockStatic(UserContextHolder.class)) {
+            userContextHolderMocked.when(UserContextHolder::getContext)
+                    .thenReturn(TestUtils.shapeUserContext());
+            Mockito.when(classroomRepository.findByCapacityContaining(Mockito.anyInt(), Mockito.any()))
+                    .thenReturn(ClassroomTestUtils.shapePageOfClassroomResponseEntity(1, 10, 20));
+
+            Page<ClassroomResponseDto> result = classroomService.fetchAll(pageSizeDto);
+
+            Mockito.verify(classroomRepository).findByCapacityContaining(Mockito.anyInt(), Mockito.any());
+            Assertions.assertNotNull(result);
+            List<ClassroomResponseDto> content = result.getContent();
+            Assertions.assertNotNull(content.get(0).getId());
+            Assertions.assertNotNull(content.get(0).getCreatorId());
+            Assertions.assertNotNull(content.get(0).getNumber());
+            Assertions.assertTrue(content.get(0).getCapacity() > 0);
+            Assertions.assertNotNull(content.get(0).getDescription());
+            Assertions.assertTrue(content.get(0).getVersion() > 0);
+            Assertions.assertNotNull(content.get(0).getCreatedAt());
+            Assertions.assertNotNull(content.get(0).getUpdatedAt());
+        }
+    }
+
+    @Test
+    public void fetchAllPositiveWithFiltrationByDescription() {
+        PageSizeDto pageSizeDto = TestUtils.shapePageSizeDto(1, 10);
+        pageSizeDto.setSortBy("id");
+        pageSizeDto.setSortDirection("desc");
+        pageSizeDto.setFilterBy("description");
+        pageSizeDto.setFilterValue("test");
+
+        try (MockedStatic<UserContextHolder> userContextHolderMocked = Mockito.mockStatic(UserContextHolder.class)) {
+            userContextHolderMocked.when(UserContextHolder::getContext)
+                    .thenReturn(TestUtils.shapeUserContext());
+            Mockito.when(classroomRepository.findByDescriptionContainingIgnoreCase(Mockito.anyString(), Mockito.any()))
+                    .thenReturn(ClassroomTestUtils.shapePageOfClassroomResponseEntity(1, 10, 20));
+
+            Page<ClassroomResponseDto> result = classroomService.fetchAll(pageSizeDto);
+
+            Mockito.verify(classroomRepository).findByDescriptionContainingIgnoreCase(Mockito.anyString(), Mockito.any());
+            Assertions.assertNotNull(result);
+            List<ClassroomResponseDto> content = result.getContent();
+            Assertions.assertNotNull(content.get(0).getId());
+            Assertions.assertNotNull(content.get(0).getCreatorId());
+            Assertions.assertNotNull(content.get(0).getNumber());
+            Assertions.assertTrue(content.get(0).getCapacity() > 0);
+            Assertions.assertNotNull(content.get(0).getDescription());
+            Assertions.assertTrue(content.get(0).getVersion() > 0);
+            Assertions.assertNotNull(content.get(0).getCreatedAt());
+            Assertions.assertNotNull(content.get(0).getUpdatedAt());
+        }
+    }
+
+    @Test
+    public void fetchAllPositiveWithIllegalFiltrationField() {
+        PageSizeDto pageSizeDto = TestUtils.shapePageSizeDto(1, 10);
+        pageSizeDto.setSortBy("id");
+        pageSizeDto.setSortDirection("test");
+        pageSizeDto.setFilterBy("test");
+        pageSizeDto.setFilterValue("test");
+
+        Assertions.assertThrows(IllegalArgumentException.class, () ->
+                classroomService.fetchAll(pageSizeDto));
+    }
+
+    @Test
+    public void fetchAllThrowsConstraintViolationException() {
+        PageSizeDto pageSizeDto = TestUtils.shapePageSizeDto(1, 10);
+        pageSizeDto.setPage(null);
+        pageSizeDto.setSize(null);
+
+        Assertions.assertThrows(ConstraintViolationException.class, () ->
+                classroomService.fetchAll(pageSizeDto));
+    }
+
+    @Test
+    public void findByIdPositive() {
+        Long contextUserId = 11L;
+        Long entityUserId = 11L;
+        UserContext userContext = TestUtils.shapeUserContext();
+        userContext.setUserId(contextUserId);
+        Classroom classroomEntity = ClassroomTestUtils.shapeClassroomEntity();
+        classroomEntity.setCreatorId(entityUserId);
+        try (MockedStatic<UserContextHolder> userContextHolderMocked = Mockito.mockStatic(UserContextHolder.class)) {
+            userContextHolderMocked.when(UserContextHolder::getContext)
+                    .thenReturn(userContext);
+            Mockito.when(classroomRepository.findById(Mockito.anyLong()))
+                    .thenReturn(Optional.of(classroomEntity));
+
+            ClassroomResponseDto classroomDto = classroomService.fetchById(1L);
+            Assertions.assertNotNull(classroomDto.getId());
+            Assertions.assertNotNull(classroomDto.getNumber());
+            Assertions.assertTrue(classroomDto.getCapacity() > 0);
+            Assertions.assertNotNull(classroomDto.getDescription());
+            Assertions.assertTrue(classroomDto.getVersion() > 0);
+            Assertions.assertNotNull(classroomDto.getCreatedAt());
+            Assertions.assertNotNull(classroomDto.getUpdatedAt());
+        }
+    }
+
+    @Test
+    public void findByIdThrowsConstraintViolationException() {
+        Assertions.assertThrows(ConstraintViolationException.class, () ->
+                classroomService.fetchById(null));
+    }
+
+    @Test
+    public void findByIdThrowsPermissionDeniedException() {
+        Long contextUserId = 10L;
+        Long entityUserId = 11L;
+        UserContext userContext = TestUtils.shapeUserContext();
+        userContext.setUserId(contextUserId);
+        Classroom classroomEntity = ClassroomTestUtils.shapeClassroomEntity();
+        classroomEntity.setCreatorId(entityUserId);
+        try (MockedStatic<UserContextHolder> userContextHolderMocked = Mockito.mockStatic(UserContextHolder.class)) {
+            userContextHolderMocked.when(UserContextHolder::getContext)
+                    .thenReturn(userContext);
+            Mockito.when(classroomRepository.findById(Mockito.anyLong()))
+                    .thenReturn(Optional.of(classroomEntity));
+
+            Assertions.assertThrows(PermissionDeniedException.class, () ->
+                    classroomService.fetchById(1L));
+        }
+    }
+
+    @Test
+    public void findByIdThrowsEntityNotFoundException() {
+        Mockito.when(classroomRepository.findById(Mockito.anyLong()))
+                .thenReturn(Optional.empty());
+
+        Assertions.assertThrows(EntityNotFoundException.class, () ->
+                classroomService.fetchById(1L));
+
+    }
     @Autowired
     public void setClassroomService(ClassroomService classroomService) {
         this.classroomService = classroomService;
