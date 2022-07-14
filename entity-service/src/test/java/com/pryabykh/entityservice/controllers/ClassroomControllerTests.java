@@ -18,7 +18,6 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import javax.validation.ConstraintViolationException;
 
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -41,11 +40,7 @@ public class ClassroomControllerTests {
         mockMvc.perform(post("/v1/classrooms")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(TestUtils.toJson(classroomRequestDto)))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.number", equalTo(classroomRequestDto.getNumber())))
-                .andExpect(jsonPath("$.capacity", equalTo(classroomRequestDto.getCapacity())))
-                .andExpect(jsonPath("$.creatorId", notNullValue()))
-                .andExpect(jsonPath("$.description", equalTo(classroomRequestDto.getDescription())));
+                .andExpect(status().isOk());
     }
 
     @Test
@@ -211,6 +206,66 @@ public class ClassroomControllerTests {
                 .thenThrow(RuntimeException.class);
 
         mockMvc.perform(get("/v1/classrooms/1"))
+                .andExpect(status().isInternalServerError());
+    }
+
+    @Test
+    public void updatePositive() throws Exception {
+        Mockito.when(classroomService.update(Mockito.anyLong(), Mockito.any()))
+                .thenReturn(ClassroomTestUtils.shapeClassroomResponseDto());
+
+        ClassroomRequestDto classroomRequestDto = ClassroomTestUtils.shapeClassroomRequestDto();
+        mockMvc.perform(put("/v1/classrooms/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(TestUtils.toJson(classroomRequestDto)))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void updatePermissionDenied() throws Exception {
+        Mockito.when(classroomService.update(Mockito.anyLong(), Mockito.any()))
+                .thenThrow(PermissionDeniedException.class);
+
+        ClassroomRequestDto classroomRequestDto = ClassroomTestUtils.shapeClassroomRequestDto();
+        mockMvc.perform(put("/v1/classrooms/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(TestUtils.toJson(classroomRequestDto)))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    public void updateBadRequest() throws Exception {
+        Mockito.when(classroomService.update(Mockito.anyLong(), Mockito.any()))
+                .thenThrow(ConstraintViolationException.class);
+
+        ClassroomRequestDto classroomRequestDto = ClassroomTestUtils.shapeClassroomRequestDto();
+        mockMvc.perform(put("/v1/classrooms/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(TestUtils.toJson(classroomRequestDto)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void updateEntityNotFound() throws Exception {
+        Mockito.when(classroomService.update(Mockito.anyLong(), Mockito.any()))
+                .thenThrow(EntityNotFoundException.class);
+
+        ClassroomRequestDto classroomRequestDto = ClassroomTestUtils.shapeClassroomRequestDto();
+        mockMvc.perform(put("/v1/classrooms/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(TestUtils.toJson(classroomRequestDto)))
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    public void updateInternalServerError() throws Exception {
+        Mockito.when(classroomService.update(Mockito.anyLong(), Mockito.any()))
+                .thenThrow(RuntimeException.class);
+
+        ClassroomRequestDto classroomRequestDto = ClassroomTestUtils.shapeClassroomRequestDto();
+        mockMvc.perform(put("/v1/classrooms/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(TestUtils.toJson(classroomRequestDto)))
                 .andExpect(status().isInternalServerError());
     }
 }

@@ -38,6 +38,12 @@ public class ClassroomController {
         return ResponseEntity.ok(classroomService.fetchById(id));
     }
 
+    @PutMapping("/{id}")
+    ResponseEntity<ClassroomResponseDto> update(@PathVariable("id") Long id,
+                                                @RequestBody ClassroomRequestDto classroomRequestDto) {
+        return ResponseEntity.ok(classroomService.update(id, classroomRequestDto));
+    }
+
     @DeleteMapping("/{id}")
     ResponseEntity<?> delete(@PathVariable("id") Long id) {
         classroomService.delete(id);

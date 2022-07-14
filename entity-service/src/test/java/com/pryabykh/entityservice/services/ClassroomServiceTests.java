@@ -1,5 +1,6 @@
 package com.pryabykh.entityservice.services;
 
+import com.pryabykh.entityservice.dtos.request.ClassroomRequestDto;
 import com.pryabykh.entityservice.dtos.request.PageSizeDto;
 import com.pryabykh.entityservice.dtos.response.ClassroomResponseDto;
 import com.pryabykh.entityservice.exceptions.EntityAlreadyExistsException;
@@ -34,7 +35,7 @@ public class ClassroomServiceTests {
 
     @Test
     public void createPositive() {
-        Mockito.when(classroomRepository.findByNumber(Mockito.anyString()))
+        Mockito.when(classroomRepository.findByNumberAndCreatorId(Mockito.anyString(), Mockito.anyLong()))
                 .thenReturn(Optional.empty());
         Mockito.when(classroomRepository.save(Mockito.any()))
                 .thenReturn(ClassroomTestUtils.shapeClassroomEntity());
@@ -56,11 +57,15 @@ public class ClassroomServiceTests {
 
     @Test
     public void createThrowsClassroomAlreadyExistsException() {
-        Mockito.when(classroomRepository.findByNumber(Mockito.anyString()))
-                .thenReturn(Optional.of(ClassroomTestUtils.shapeClassroomEntity()));
+        try (MockedStatic<UserContextHolder> userContextHolderMocked = Mockito.mockStatic(UserContextHolder.class)) {
+            userContextHolderMocked.when(UserContextHolder::getContext)
+                    .thenReturn(TestUtils.shapeUserContext());
+            Mockito.when(classroomRepository.findByNumberAndCreatorId(Mockito.anyString(), Mockito.anyLong()))
+                    .thenReturn(Optional.of(ClassroomTestUtils.shapeClassroomEntity()));
 
-        Assertions.assertThrows(EntityAlreadyExistsException.class, () ->
-                classroomService.create(ClassroomTestUtils.shapeClassroomRequestDto()));
+            Assertions.assertThrows(EntityAlreadyExistsException.class, () ->
+                    classroomService.create(ClassroomTestUtils.shapeClassroomRequestDto()));
+        }
     }
 
     @Test
@@ -228,12 +233,12 @@ public class ClassroomServiceTests {
         try (MockedStatic<UserContextHolder> userContextHolderMocked = Mockito.mockStatic(UserContextHolder.class)) {
             userContextHolderMocked.when(UserContextHolder::getContext)
                     .thenReturn(TestUtils.shapeUserContext());
-            Mockito.when(classroomRepository.findByNumberContainingIgnoreCase(Mockito.anyString(), Mockito.any()))
+            Mockito.when(classroomRepository.findByCreatorIdAndNumberContainingIgnoreCase(Mockito.anyLong(), Mockito.anyString(), Mockito.any()))
                     .thenReturn(ClassroomTestUtils.shapePageOfClassroomResponseEntity(1, 10, 20));
 
             Page<ClassroomResponseDto> result = classroomService.fetchAll(pageSizeDto);
 
-            Mockito.verify(classroomRepository).findByNumberContainingIgnoreCase(Mockito.anyString(), Mockito.any());
+            Mockito.verify(classroomRepository).findByCreatorIdAndNumberContainingIgnoreCase(Mockito.anyLong(), Mockito.anyString(), Mockito.any());
             Assertions.assertNotNull(result);
             List<ClassroomResponseDto> content = result.getContent();
             Assertions.assertNotNull(content.get(0).getId());
@@ -258,12 +263,12 @@ public class ClassroomServiceTests {
         try (MockedStatic<UserContextHolder> userContextHolderMocked = Mockito.mockStatic(UserContextHolder.class)) {
             userContextHolderMocked.when(UserContextHolder::getContext)
                     .thenReturn(TestUtils.shapeUserContext());
-            Mockito.when(classroomRepository.findByCapacityContaining(Mockito.anyInt(), Mockito.any()))
+            Mockito.when(classroomRepository.findByCreatorIdAndCapacityContaining(Mockito.anyLong(), Mockito.anyInt(), Mockito.any()))
                     .thenReturn(ClassroomTestUtils.shapePageOfClassroomResponseEntity(1, 10, 20));
 
             Page<ClassroomResponseDto> result = classroomService.fetchAll(pageSizeDto);
 
-            Mockito.verify(classroomRepository).findByCapacityContaining(Mockito.anyInt(), Mockito.any());
+            Mockito.verify(classroomRepository).findByCreatorIdAndCapacityContaining(Mockito.anyLong(), Mockito.anyInt(), Mockito.any());
             Assertions.assertNotNull(result);
             List<ClassroomResponseDto> content = result.getContent();
             Assertions.assertNotNull(content.get(0).getId());
@@ -288,12 +293,12 @@ public class ClassroomServiceTests {
         try (MockedStatic<UserContextHolder> userContextHolderMocked = Mockito.mockStatic(UserContextHolder.class)) {
             userContextHolderMocked.when(UserContextHolder::getContext)
                     .thenReturn(TestUtils.shapeUserContext());
-            Mockito.when(classroomRepository.findByDescriptionContainingIgnoreCase(Mockito.anyString(), Mockito.any()))
+            Mockito.when(classroomRepository.findByCreatorIdAndDescriptionContainingIgnoreCase(Mockito.anyLong(), Mockito.anyString(), Mockito.any()))
                     .thenReturn(ClassroomTestUtils.shapePageOfClassroomResponseEntity(1, 10, 20));
 
             Page<ClassroomResponseDto> result = classroomService.fetchAll(pageSizeDto);
 
-            Mockito.verify(classroomRepository).findByDescriptionContainingIgnoreCase(Mockito.anyString(), Mockito.any());
+            Mockito.verify(classroomRepository).findByCreatorIdAndDescriptionContainingIgnoreCase(Mockito.anyLong(), Mockito.anyString(), Mockito.any());
             Assertions.assertNotNull(result);
             List<ClassroomResponseDto> content = result.getContent();
             Assertions.assertNotNull(content.get(0).getId());
@@ -386,8 +391,99 @@ public class ClassroomServiceTests {
 
         Assertions.assertThrows(EntityNotFoundException.class, () ->
                 classroomService.fetchById(1L));
-
     }
+
+    @Test
+    public void updatePositive() {
+        Long contextUserId = 11L;
+        Long entityUserId = 11L;
+        UserContext userContext = TestUtils.shapeUserContext();
+        userContext.setUserId(contextUserId);
+        Classroom classroomEntity = ClassroomTestUtils.shapeClassroomEntity();
+        classroomEntity.setCreatorId(entityUserId);
+        try (MockedStatic<UserContextHolder> userContextHolderMocked = Mockito.mockStatic(UserContextHolder.class)) {
+            userContextHolderMocked.when(UserContextHolder::getContext)
+                    .thenReturn(userContext);
+            Mockito.when(classroomRepository.findById(Mockito.anyLong()))
+                    .thenReturn(Optional.of(classroomEntity));
+            Mockito.when(classroomRepository.findByNumberAndCreatorId(Mockito.anyString(), Mockito.anyLong()))
+                    .thenReturn(Optional.empty());
+            Mockito.when(classroomRepository.save(Mockito.any()))
+                    .thenReturn(classroomEntity);
+            ClassroomResponseDto classroomDto = classroomService.update(1L, ClassroomTestUtils.shapeClassroomRequestDto());
+            Assertions.assertNotNull(classroomDto.getId());
+            Assertions.assertNotNull(classroomDto.getNumber());
+            Assertions.assertTrue(classroomDto.getCapacity() > 0);
+            Assertions.assertNotNull(classroomDto.getDescription());
+            Assertions.assertTrue(classroomDto.getVersion() > 0);
+            Assertions.assertNotNull(classroomDto.getCreatedAt());
+            Assertions.assertNotNull(classroomDto.getUpdatedAt());
+        }
+    }
+
+    @Test
+    public void updateThrowsPermissionDeniedException() {
+        Long contextUserId = 10L;
+        Long entityUserId = 11L;
+        UserContext userContext = TestUtils.shapeUserContext();
+        userContext.setUserId(contextUserId);
+        Classroom classroomEntity = ClassroomTestUtils.shapeClassroomEntity();
+        classroomEntity.setCreatorId(entityUserId);
+        try (MockedStatic<UserContextHolder> userContextHolderMocked = Mockito.mockStatic(UserContextHolder.class)) {
+            userContextHolderMocked.when(UserContextHolder::getContext)
+                    .thenReturn(userContext);
+            Mockito.when(classroomRepository.findById(Mockito.anyLong()))
+                    .thenReturn(Optional.of(ClassroomTestUtils.shapeClassroomEntity()));
+            Mockito.when(classroomRepository.findByNumberAndCreatorId(Mockito.anyString(), Mockito.anyLong()))
+                    .thenReturn(Optional.empty());
+            Mockito.when(classroomRepository.save(Mockito.any()))
+                    .thenReturn(ClassroomTestUtils.shapeClassroomEntity());
+
+            Assertions.assertThrows(PermissionDeniedException.class, () ->
+                    classroomService.update(1L, ClassroomTestUtils.shapeClassroomRequestDto()));
+        }
+    }
+
+    @Test
+    public void updateThrowsEntityAlreadyExistsException() {
+        Long contextUserId = 11L;
+        Long entityUserId = 11L;
+        UserContext userContext = TestUtils.shapeUserContext();
+        userContext.setUserId(contextUserId);
+        Classroom classroomEntity = ClassroomTestUtils.shapeClassroomEntity();
+        classroomEntity.setCreatorId(entityUserId);
+        try (MockedStatic<UserContextHolder> userContextHolderMocked = Mockito.mockStatic(UserContextHolder.class)) {
+            userContextHolderMocked.when(UserContextHolder::getContext)
+                    .thenReturn(userContext);
+            Mockito.when(classroomRepository.findById(Mockito.anyLong()))
+                    .thenReturn(Optional.of(classroomEntity));
+            Mockito.when(classroomRepository.findByNumberAndCreatorId(Mockito.anyString(), Mockito.anyLong()))
+                    .thenReturn(Optional.of(classroomEntity));
+            Mockito.when(classroomRepository.save(Mockito.any()))
+                    .thenReturn(classroomEntity);
+
+            ClassroomRequestDto classroomRequestDto = ClassroomTestUtils.shapeClassroomRequestDto();
+            classroomRequestDto.setNumber("new number");
+            Assertions.assertThrows(EntityAlreadyExistsException.class, () ->
+                    classroomService.update(1L, classroomRequestDto));
+        }
+    }
+
+    @Test
+    public void updateThrowsConstraintViolationException() {
+        Assertions.assertThrows(ConstraintViolationException.class, () ->
+                classroomService.update(null, ClassroomTestUtils.shapeInvalidClassroomRequestDto()));
+    }
+
+    @Test
+    public void updateThrowsEntityNotFoundException() {
+        Mockito.when(classroomRepository.findById(Mockito.anyLong()))
+                .thenReturn(Optional.empty());
+
+        Assertions.assertThrows(EntityNotFoundException.class, () ->
+                classroomService.update(1L, ClassroomTestUtils.shapeClassroomRequestDto()));
+    }
+
     @Autowired
     public void setClassroomService(ClassroomService classroomService) {
         this.classroomService = classroomService;

@@ -14,7 +14,13 @@ import javax.validation.constraints.NotNull;
 @Validated
 public interface ClassroomService {
     ClassroomResponseDto create(@Valid ClassroomRequestDto classroomDto);
+
     Page<ClassroomResponseDto> fetchAll(@Valid PageSizeDto pageSizeDto);
+
     ClassroomResponseDto fetchById(@NotNull @Min(1) @Max(Long.MAX_VALUE) Long id);
+
+    ClassroomResponseDto update(@NotNull @Min(1) @Max(Long.MAX_VALUE) Long id,
+                                @Valid ClassroomRequestDto classroomDto);
+
     void delete(@NotNull @Min(1) @Max(Long.MAX_VALUE) Long id);
 }

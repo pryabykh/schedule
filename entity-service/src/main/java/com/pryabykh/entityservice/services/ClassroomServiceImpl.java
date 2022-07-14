@@ -17,6 +17,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
@@ -30,11 +31,12 @@ public class ClassroomServiceImpl implements ClassroomService {
     @Override
     @Transactional
     public ClassroomResponseDto create(ClassroomRequestDto classroomDto) {
-        if (classroomWithGivenNumberAlreadyExists(classroomDto)) {
+        Long userId = UserContextHolder.getContext().getUserId();
+        if (classroomWithGivenNumberAlreadyExists(classroomDto, userId)) {
             throw new EntityAlreadyExistsException();
         }
         Classroom classroomEntity = ClassroomDtoUtils.convertToEntity(classroomDto);
-        classroomEntity.setCreatorId(UserContextHolder.getContext().getUserId());
+        classroomEntity.setCreatorId(userId);
         Classroom savedClassroom = classroomRepository.save(classroomEntity);
         return ClassroomDtoUtils.convertFromEntity(savedClassroom);
     }
@@ -48,7 +50,10 @@ public class ClassroomServiceImpl implements ClassroomService {
             return classroomRepository.findAllByCreatorId(userId, pageable)
                     .map(ClassroomDtoUtils::convertFromEntity);
         }
-        return fetchAllByFilter(pageSizeDto.getFilterBy(), pageSizeDto.getFilterValue(), pageable)
+        return fetchAllByFilterAndCreatorId(pageSizeDto.getFilterBy(),
+                pageSizeDto.getFilterValue(),
+                userId,
+                pageable)
                 .map(ClassroomDtoUtils::convertFromEntity);
     }
 
@@ -67,6 +72,31 @@ public class ClassroomServiceImpl implements ClassroomService {
     }
 
     @Override
+    public ClassroomResponseDto update(Long id, ClassroomRequestDto classroomDto) {
+        Optional<Classroom> optionalClassroom = classroomRepository.findById(id);
+        if (optionalClassroom.isEmpty()) {
+            throw new EntityNotFoundException();
+        }
+        Classroom currentClassroom = optionalClassroom.get();
+        Long userId = UserContextHolder.getContext().getUserId();
+        if (!Objects.equals(currentClassroom.getCreatorId(), userId)) {
+            throw new PermissionDeniedException();
+        }
+        if (!Objects.equals(currentClassroom.getNumber(), classroomDto.getNumber())) {
+            Optional<Classroom> classroomByNumberAndCreatorId =
+                    classroomRepository.findByNumberAndCreatorId(classroomDto.getNumber(), userId);
+            if (classroomByNumberAndCreatorId.isPresent()) {
+                throw new EntityAlreadyExistsException();
+            }
+        }
+        Classroom newClassroom = ClassroomDtoUtils.convertToEntity(classroomDto);
+        currentClassroom.setNumber(newClassroom.getNumber());
+        currentClassroom.setCapacity(newClassroom.getCapacity());
+        currentClassroom.setDescription(newClassroom.getDescription());
+        return ClassroomDtoUtils.convertFromEntity(classroomRepository.save(currentClassroom));
+    }
+
+    @Override
     @Transactional
     public void delete(Long id) {
         Optional<Classroom> optionalClassroom = classroomRepository.findById(id);
@@ -81,8 +111,8 @@ public class ClassroomServiceImpl implements ClassroomService {
         classroomRepository.deleteById(id);
     }
 
-    private boolean classroomWithGivenNumberAlreadyExists(ClassroomRequestDto classroomDto) {
-        return classroomRepository.findByNumber(classroomDto.getNumber()).isPresent();
+    private boolean classroomWithGivenNumberAlreadyExists(ClassroomRequestDto classroomDto, Long userId) {
+        return classroomRepository.findByNumberAndCreatorId(classroomDto.getNumber(), userId).isPresent();
     }
 
     private Pageable createPageable(PageSizeDto pageSizeDto) {
@@ -111,16 +141,19 @@ public class ClassroomServiceImpl implements ClassroomService {
         return true;
     }
 
-    private Page<Classroom> fetchAllByFilter(String filterBy, String filterValue, Pageable pageable) {
+    private Page<Classroom> fetchAllByFilterAndCreatorId(String filterBy,
+                                                         String filterValue,
+                                                         Long creatorId,
+                                                         Pageable pageable) {
         switch (filterBy.toLowerCase()) {
             case "number": {
-                return classroomRepository.findByNumberContainingIgnoreCase(filterValue, pageable);
+                return classroomRepository.findByCreatorIdAndNumberContainingIgnoreCase(creatorId, filterValue, pageable);
             }
             case "capacity": {
-                return classroomRepository.findByCapacityContaining(Integer.parseInt(filterValue), pageable);
+                return classroomRepository.findByCreatorIdAndCapacityContaining(creatorId, Integer.parseInt(filterValue), pageable);
             }
             case "description": {
-                return classroomRepository.findByDescriptionContainingIgnoreCase(filterValue, pageable);
+                return classroomRepository.findByCreatorIdAndDescriptionContainingIgnoreCase(creatorId, filterValue, pageable);
             }
             default: {
                 throw new IllegalArgumentException("Unsupported filter criteria - " + filterBy);
