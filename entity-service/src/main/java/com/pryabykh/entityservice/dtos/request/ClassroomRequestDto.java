@@ -12,4 +12,6 @@ public class ClassroomRequestDto {
     private int capacity;
     @Size(max = 255)
     private String description;
+    @Max(Long.MAX_VALUE)
+    private Long inCharge;
 }

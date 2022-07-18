@@ -5,32 +5,34 @@ import org.hibernate.Hibernate;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 @Getter
 @Setter
 @ToString
 @RequiredArgsConstructor
 @Entity
-@Table(name = "classrooms")
-public class Classroom {
+@Table(name = "teachers")
+public class Teacher {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "number")
-    private String number;
+    @Column(name = "first_name")
+    private String firstName;
 
-    @Column(name = "capacity")
-    private int capacity;
+    @Column(name = "patronymic")
+    private String patronymic;
 
-    @Column(name = "description")
-    private String description;
+    @Column(name = "last_name")
+    private String lastName;
 
-    @ManyToOne
-    @JoinColumn(name = "in_charge")
-    private Teacher inCharge;
+    @OneToMany(mappedBy = "inCharge")
+    @ToString.Exclude
+    private Set<Classroom> classrooms = new HashSet<>();
 
     @Column(name = "creator_id")
     private Long creatorId;
@@ -63,8 +65,8 @@ public class Classroom {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        Classroom classroom = (Classroom) o;
-        return id != null && Objects.equals(id, classroom.id);
+        Teacher teacher = (Teacher) o;
+        return id != null && Objects.equals(id, teacher.id);
     }
 
     @Override

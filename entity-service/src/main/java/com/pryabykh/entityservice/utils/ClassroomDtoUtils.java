@@ -3,6 +3,7 @@ package com.pryabykh.entityservice.utils;
 import com.pryabykh.entityservice.dtos.request.ClassroomRequestDto;
 import com.pryabykh.entityservice.dtos.response.ClassroomResponseDto;
 import com.pryabykh.entityservice.models.Classroom;
+import com.pryabykh.entityservice.models.Teacher;
 
 public class ClassroomDtoUtils {
     public static ClassroomResponseDto convertFromEntity(Classroom classroom) {
@@ -12,6 +13,7 @@ public class ClassroomDtoUtils {
         classroomDto.setCapacity(classroom.getCapacity());
         classroomDto.setDescription(classroom.getDescription());
         classroomDto.setCreatorId(classroom.getCreatorId());
+        classroomDto.setInCharge(TeacherDtoUtils.convertFromEntity(classroom.getInCharge()));
         classroomDto.setVersion(classroom.getVersion());
         classroomDto.setCreatedAt(classroom.getCreatedAt());
         classroomDto.setUpdatedAt(classroom.getUpdatedAt());
@@ -23,6 +25,9 @@ public class ClassroomDtoUtils {
         classroom.setNumber(classroomDto.getNumber());
         classroom.setCapacity(classroomDto.getCapacity());
         classroom.setDescription(classroomDto.getDescription());
+        Teacher teacherInCharge = new Teacher();
+        teacherInCharge.setId(classroomDto.getInCharge());
+        classroom.setInCharge(teacherInCharge);
         return classroom;
     }
 }

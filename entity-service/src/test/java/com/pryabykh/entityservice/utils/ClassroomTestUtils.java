@@ -2,7 +2,9 @@ package com.pryabykh.entityservice.utils;
 
 import com.pryabykh.entityservice.dtos.request.ClassroomRequestDto;
 import com.pryabykh.entityservice.dtos.response.ClassroomResponseDto;
+import com.pryabykh.entityservice.dtos.response.TeacherResponseDto;
 import com.pryabykh.entityservice.models.Classroom;
+import com.pryabykh.entityservice.models.Teacher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.support.PageableExecutionUtils;
@@ -17,6 +19,7 @@ public class ClassroomTestUtils {
         classroomDto.setNumber("1-B");
         classroomDto.setCapacity(20);
         classroomDto.setDescription("Кабинет химии");
+        classroomDto.setInCharge(10L);
         return classroomDto;
     }
 
@@ -25,6 +28,7 @@ public class ClassroomTestUtils {
         classroomDto.setNumber(null);
         classroomDto.setCapacity(0);
         classroomDto.setDescription("Кабинет химии Кабинет химии Кабинет химии Кабинет химии Кабинет химии Кабинет химииКабинет химии Кабинет химии Кабинет химии Кабинет химии Кабинет химии Кабинет химии Кабинет химии Кабинет химии Кабинет химии Кабинет химииКабинет химии Кабинет химии Кабинет химии Кабинет химии");
+        classroomDto.setInCharge(null);
         return classroomDto;
     }
 
@@ -38,6 +42,8 @@ public class ClassroomTestUtils {
         classroom.setVersion(1);
         classroom.setCreatedAt(new Date());
         classroom.setUpdatedAt(new Date());
+        Teacher teacher = new Teacher();
+        classroom.setInCharge(teacher);
         return classroom;
     }
 
@@ -51,6 +57,8 @@ public class ClassroomTestUtils {
         classroomDto.setVersion(1);
         classroomDto.setCreatedAt(new Date());
         classroomDto.setUpdatedAt(new Date());
+        TeacherResponseDto teacher = new TeacherResponseDto();
+        classroomDto.setInCharge(teacher);
         return classroomDto;
     }
 
