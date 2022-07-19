@@ -150,10 +150,13 @@ public class ClassroomServiceImpl implements ClassroomService {
                 return classroomRepository.findByCreatorIdAndNumberContainingIgnoreCase(creatorId, filterValue, pageable);
             }
             case "capacity": {
-                return classroomRepository.findByCreatorIdAndCapacityContaining(creatorId, Integer.parseInt(filterValue), pageable);
+                return classroomRepository.findByCreatorIdAndCapacityContaining(creatorId, filterValue, pageable);
             }
             case "description": {
                 return classroomRepository.findByCreatorIdAndDescriptionContainingIgnoreCase(creatorId, filterValue, pageable);
+            }
+            case "incharge": {
+                return classroomRepository.findByCreatorIdAndInChargeContaining(creatorId, filterValue, pageable);
             }
             default: {
                 throw new IllegalArgumentException("Unsupported filter criteria - " + filterBy);

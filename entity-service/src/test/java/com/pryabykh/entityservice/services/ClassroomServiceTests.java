@@ -268,12 +268,12 @@ public class ClassroomServiceTests {
         try (MockedStatic<UserContextHolder> userContextHolderMocked = Mockito.mockStatic(UserContextHolder.class)) {
             userContextHolderMocked.when(UserContextHolder::getContext)
                     .thenReturn(TestUtils.shapeUserContext());
-            Mockito.when(classroomRepository.findByCreatorIdAndCapacityContaining(Mockito.anyLong(), Mockito.anyInt(), Mockito.any()))
+            Mockito.when(classroomRepository.findByCreatorIdAndCapacityContaining(Mockito.anyLong(), Mockito.anyString(), Mockito.any()))
                     .thenReturn(ClassroomTestUtils.shapePageOfClassroomResponseEntity(1, 10, 20));
 
             Page<ClassroomResponseDto> result = classroomService.fetchAll(pageSizeDto);
 
-            Mockito.verify(classroomRepository).findByCreatorIdAndCapacityContaining(Mockito.anyLong(), Mockito.anyInt(), Mockito.any());
+            Mockito.verify(classroomRepository).findByCreatorIdAndCapacityContaining(Mockito.anyLong(), Mockito.anyString(), Mockito.any());
             Assertions.assertNotNull(result);
             List<ClassroomResponseDto> content = result.getContent();
             Assertions.assertNotNull(content.get(0).getId());
