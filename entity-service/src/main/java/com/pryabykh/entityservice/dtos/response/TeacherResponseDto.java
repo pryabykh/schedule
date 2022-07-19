@@ -1,6 +1,5 @@
 package com.pryabykh.entityservice.dtos.response;
 
-import com.pryabykh.entityservice.models.Classroom;
 import lombok.Data;
 
 import java.util.Date;
@@ -13,7 +12,7 @@ public class TeacherResponseDto {
     private String firstName;
     private String patronymic;
     private String lastName;
-    private Set<Classroom> classrooms = new HashSet<>();
+    private Set<ClassroomResponseDto> classrooms = new HashSet<>();
     private Long creatorId;
     private int version;
     private Date createdAt;

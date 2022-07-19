@@ -320,6 +320,37 @@ public class ClassroomServiceTests {
     }
 
     @Test
+    public void fetchAllPositiveWithFiltrationByInCharge() {
+        PageSizeDto pageSizeDto = TestUtils.shapePageSizeDto(1, 10);
+        pageSizeDto.setSortBy("id");
+        pageSizeDto.setSortDirection("desc");
+        pageSizeDto.setFilterBy("incharge");
+        pageSizeDto.setFilterValue("test");
+
+        try (MockedStatic<UserContextHolder> userContextHolderMocked = Mockito.mockStatic(UserContextHolder.class)) {
+            userContextHolderMocked.when(UserContextHolder::getContext)
+                    .thenReturn(TestUtils.shapeUserContext());
+            Mockito.when(classroomRepository.findByCreatorIdAndInChargeContaining(Mockito.anyLong(), Mockito.anyString(), Mockito.any()))
+                    .thenReturn(ClassroomTestUtils.shapePageOfClassroomResponseEntity(1, 10, 20));
+
+            Page<ClassroomResponseDto> result = classroomService.fetchAll(pageSizeDto);
+
+            Mockito.verify(classroomRepository).findByCreatorIdAndInChargeContaining(Mockito.anyLong(), Mockito.anyString(), Mockito.any());
+            Assertions.assertNotNull(result);
+            List<ClassroomResponseDto> content = result.getContent();
+            Assertions.assertNotNull(content.get(0).getId());
+            Assertions.assertNotNull(content.get(0).getCreatorId());
+            Assertions.assertNotNull(content.get(0).getNumber());
+            Assertions.assertNotNull(content.get(0).getInCharge());
+            Assertions.assertTrue(content.get(0).getCapacity() > 0);
+            Assertions.assertNotNull(content.get(0).getDescription());
+            Assertions.assertTrue(content.get(0).getVersion() > 0);
+            Assertions.assertNotNull(content.get(0).getCreatedAt());
+            Assertions.assertNotNull(content.get(0).getUpdatedAt());
+        }
+    }
+
+    @Test
     public void fetchAllPositiveWithIllegalFiltrationField() {
         PageSizeDto pageSizeDto = TestUtils.shapePageSizeDto(1, 10);
         pageSizeDto.setSortBy("id");
