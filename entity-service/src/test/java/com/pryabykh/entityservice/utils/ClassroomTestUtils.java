@@ -76,7 +76,7 @@ public class ClassroomTestUtils {
                 () -> total);
     }
 
-    public static Page<Classroom> shapePageOfClassroomResponseEntity(int page, int size, int total) {
+    public static Page<Classroom> shapePageOfClassroomEntity(int page, int size, int total) {
         List<Classroom> classrooms = new ArrayList<>();
         for (int i = 0; i < total; i++) {
             Classroom classroom = shapeClassroomEntity();

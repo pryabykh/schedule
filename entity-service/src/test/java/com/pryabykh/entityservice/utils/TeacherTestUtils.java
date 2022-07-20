@@ -3,6 +3,8 @@ package com.pryabykh.entityservice.utils;
 import com.pryabykh.entityservice.dtos.request.TeacherRequestDto;
 import com.pryabykh.entityservice.dtos.response.ClassroomResponseDto;
 import com.pryabykh.entityservice.dtos.response.TeacherResponseDto;
+import com.pryabykh.entityservice.models.Classroom;
+import com.pryabykh.entityservice.models.Teacher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.support.PageableExecutionUtils;
@@ -53,6 +55,33 @@ public class TeacherTestUtils {
         }
         return PageableExecutionUtils.getPage(
                 teacherResponseDtoList,
+                PageRequest.of(page, size),
+                () -> total);
+    }
+
+    public static Teacher shapeTeacherEntity() {
+        Teacher teacher = new Teacher();
+        teacher.setId(1L);
+        teacher.setFirstName("Иван");
+        teacher.setPatronymic("Иванович");
+        teacher.setLastName("Иванов");
+        teacher.setCreatorId(1L);
+        teacher.setCreatedAt(new Date());
+        teacher.setUpdatedAt(new Date());
+        teacher.setVersion(1);
+        teacher.setClassrooms(new HashSet<>(List.of(new Classroom())));
+        return teacher;
+    }
+
+    public static Page<Teacher> shapePageOfTeacherEntity(int page, int size, int total) {
+        List<Teacher> teachers = new ArrayList<>();
+        for (int i = 0; i < total; i++) {
+            Teacher teacher = shapeTeacherEntity();
+            teacher.setId((long) i);
+            teachers.add(teacher);
+        }
+        return PageableExecutionUtils.getPage(
+                teachers,
                 PageRequest.of(page, size),
                 () -> total);
     }

@@ -134,7 +134,7 @@ public class ClassroomServiceTests {
             userContextHolderMocked.when(UserContextHolder::getContext)
                     .thenReturn(TestUtils.shapeUserContext());
             Mockito.when(classroomRepository.findAllByCreatorId(Mockito.anyLong(), Mockito.any()))
-                    .thenReturn(ClassroomTestUtils.shapePageOfClassroomResponseEntity(1, 10, 20));
+                    .thenReturn(ClassroomTestUtils.shapePageOfClassroomEntity(1, 10, 20));
 
             Page<ClassroomResponseDto> result = classroomService.fetchAll(pageSizeDto);
 
@@ -165,7 +165,7 @@ public class ClassroomServiceTests {
             userContextHolderMocked.when(UserContextHolder::getContext)
                     .thenReturn(TestUtils.shapeUserContext());
             Mockito.when(classroomRepository.findAllByCreatorId(Mockito.anyLong(), Mockito.any()))
-                    .thenReturn(ClassroomTestUtils.shapePageOfClassroomResponseEntity(1, 10, 20));
+                    .thenReturn(ClassroomTestUtils.shapePageOfClassroomEntity(1, 10, 20));
 
             Page<ClassroomResponseDto> result = classroomService.fetchAll(pageSizeDto);
 
@@ -196,7 +196,7 @@ public class ClassroomServiceTests {
             userContextHolderMocked.when(UserContextHolder::getContext)
                     .thenReturn(TestUtils.shapeUserContext());
             Mockito.when(classroomRepository.findAllByCreatorId(Mockito.anyLong(), Mockito.any()))
-                    .thenReturn(ClassroomTestUtils.shapePageOfClassroomResponseEntity(1, 10, 20));
+                    .thenReturn(ClassroomTestUtils.shapePageOfClassroomEntity(1, 10, 20));
 
             Page<ClassroomResponseDto> result = classroomService.fetchAll(pageSizeDto);
 
@@ -238,7 +238,7 @@ public class ClassroomServiceTests {
             userContextHolderMocked.when(UserContextHolder::getContext)
                     .thenReturn(TestUtils.shapeUserContext());
             Mockito.when(classroomRepository.findByCreatorIdAndNumberContainingIgnoreCase(Mockito.anyLong(), Mockito.anyString(), Mockito.any()))
-                    .thenReturn(ClassroomTestUtils.shapePageOfClassroomResponseEntity(1, 10, 20));
+                    .thenReturn(ClassroomTestUtils.shapePageOfClassroomEntity(1, 10, 20));
 
             Page<ClassroomResponseDto> result = classroomService.fetchAll(pageSizeDto);
 
@@ -269,7 +269,7 @@ public class ClassroomServiceTests {
             userContextHolderMocked.when(UserContextHolder::getContext)
                     .thenReturn(TestUtils.shapeUserContext());
             Mockito.when(classroomRepository.findByCreatorIdAndCapacityContaining(Mockito.anyLong(), Mockito.anyString(), Mockito.any()))
-                    .thenReturn(ClassroomTestUtils.shapePageOfClassroomResponseEntity(1, 10, 20));
+                    .thenReturn(ClassroomTestUtils.shapePageOfClassroomEntity(1, 10, 20));
 
             Page<ClassroomResponseDto> result = classroomService.fetchAll(pageSizeDto);
 
@@ -300,7 +300,7 @@ public class ClassroomServiceTests {
             userContextHolderMocked.when(UserContextHolder::getContext)
                     .thenReturn(TestUtils.shapeUserContext());
             Mockito.when(classroomRepository.findByCreatorIdAndDescriptionContainingIgnoreCase(Mockito.anyLong(), Mockito.anyString(), Mockito.any()))
-                    .thenReturn(ClassroomTestUtils.shapePageOfClassroomResponseEntity(1, 10, 20));
+                    .thenReturn(ClassroomTestUtils.shapePageOfClassroomEntity(1, 10, 20));
 
             Page<ClassroomResponseDto> result = classroomService.fetchAll(pageSizeDto);
 
@@ -320,7 +320,7 @@ public class ClassroomServiceTests {
     }
 
     @Test
-    public void fetchAllPositiveWithFiltrationByInCharge() {
+    public void fetchAllPositiveWithFiltrationByTeacher() {
         PageSizeDto pageSizeDto = TestUtils.shapePageSizeDto(1, 10);
         pageSizeDto.setSortBy("id");
         pageSizeDto.setSortDirection("desc");
@@ -331,7 +331,7 @@ public class ClassroomServiceTests {
             userContextHolderMocked.when(UserContextHolder::getContext)
                     .thenReturn(TestUtils.shapeUserContext());
             Mockito.when(classroomRepository.findByCreatorIdAndTeacherIdContaining(Mockito.anyLong(), Mockito.anyString(), Mockito.any()))
-                    .thenReturn(ClassroomTestUtils.shapePageOfClassroomResponseEntity(1, 10, 20));
+                    .thenReturn(ClassroomTestUtils.shapePageOfClassroomEntity(1, 10, 20));
 
             Page<ClassroomResponseDto> result = classroomService.fetchAll(pageSizeDto);
 
