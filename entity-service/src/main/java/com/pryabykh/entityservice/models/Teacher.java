@@ -30,7 +30,7 @@ public class Teacher {
     @Column(name = "last_name")
     private String lastName;
 
-    @OneToMany(mappedBy = "inCharge")
+    @OneToMany(mappedBy = "teacher")
     @ToString.Exclude
     private Set<Classroom> classrooms = new HashSet<>();
 

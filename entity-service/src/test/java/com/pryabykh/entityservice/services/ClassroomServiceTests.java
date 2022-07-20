@@ -44,7 +44,7 @@ public class ClassroomServiceTests {
         Assertions.assertNotNull(classroomDto.getNumber());
         Assertions.assertTrue(classroomDto.getCapacity() > 0);
         Assertions.assertNotNull(classroomDto.getDescription());
-        Assertions.assertNotNull(classroomDto.getInCharge());
+        Assertions.assertNotNull(classroomDto.getTeacher());
         Assertions.assertTrue(classroomDto.getVersion() > 0);
         Assertions.assertNotNull(classroomDto.getCreatedAt());
         Assertions.assertNotNull(classroomDto.getUpdatedAt());
@@ -144,7 +144,7 @@ public class ClassroomServiceTests {
             Assertions.assertNotNull(content.get(0).getId());
             Assertions.assertNotNull(content.get(0).getCreatorId());
             Assertions.assertNotNull(content.get(0).getNumber());
-            Assertions.assertNotNull(content.get(0).getInCharge());
+            Assertions.assertNotNull(content.get(0).getTeacher());
             Assertions.assertTrue(content.get(0).getCapacity() > 0);
             Assertions.assertNotNull(content.get(0).getDescription());
             Assertions.assertTrue(content.get(0).getVersion() > 0);
@@ -175,7 +175,7 @@ public class ClassroomServiceTests {
             Assertions.assertNotNull(content.get(0).getId());
             Assertions.assertNotNull(content.get(0).getCreatorId());
             Assertions.assertNotNull(content.get(0).getNumber());
-            Assertions.assertNotNull(content.get(0).getInCharge());
+            Assertions.assertNotNull(content.get(0).getTeacher());
             Assertions.assertTrue(content.get(0).getCapacity() > 0);
             Assertions.assertNotNull(content.get(0).getDescription());
             Assertions.assertTrue(content.get(0).getVersion() > 0);
@@ -206,7 +206,7 @@ public class ClassroomServiceTests {
             Assertions.assertNotNull(content.get(0).getId());
             Assertions.assertNotNull(content.get(0).getCreatorId());
             Assertions.assertNotNull(content.get(0).getNumber());
-            Assertions.assertNotNull(content.get(0).getInCharge());
+            Assertions.assertNotNull(content.get(0).getTeacher());
             Assertions.assertTrue(content.get(0).getCapacity() > 0);
             Assertions.assertNotNull(content.get(0).getDescription());
             Assertions.assertTrue(content.get(0).getVersion() > 0);
@@ -248,7 +248,7 @@ public class ClassroomServiceTests {
             Assertions.assertNotNull(content.get(0).getId());
             Assertions.assertNotNull(content.get(0).getCreatorId());
             Assertions.assertNotNull(content.get(0).getNumber());
-            Assertions.assertNotNull(content.get(0).getInCharge());
+            Assertions.assertNotNull(content.get(0).getTeacher());
             Assertions.assertTrue(content.get(0).getCapacity() > 0);
             Assertions.assertNotNull(content.get(0).getDescription());
             Assertions.assertTrue(content.get(0).getVersion() > 0);
@@ -279,7 +279,7 @@ public class ClassroomServiceTests {
             Assertions.assertNotNull(content.get(0).getId());
             Assertions.assertNotNull(content.get(0).getCreatorId());
             Assertions.assertNotNull(content.get(0).getNumber());
-            Assertions.assertNotNull(content.get(0).getInCharge());
+            Assertions.assertNotNull(content.get(0).getTeacher());
             Assertions.assertTrue(content.get(0).getCapacity() > 0);
             Assertions.assertNotNull(content.get(0).getDescription());
             Assertions.assertTrue(content.get(0).getVersion() > 0);
@@ -310,7 +310,7 @@ public class ClassroomServiceTests {
             Assertions.assertNotNull(content.get(0).getId());
             Assertions.assertNotNull(content.get(0).getCreatorId());
             Assertions.assertNotNull(content.get(0).getNumber());
-            Assertions.assertNotNull(content.get(0).getInCharge());
+            Assertions.assertNotNull(content.get(0).getTeacher());
             Assertions.assertTrue(content.get(0).getCapacity() > 0);
             Assertions.assertNotNull(content.get(0).getDescription());
             Assertions.assertTrue(content.get(0).getVersion() > 0);
@@ -324,24 +324,24 @@ public class ClassroomServiceTests {
         PageSizeDto pageSizeDto = TestUtils.shapePageSizeDto(1, 10);
         pageSizeDto.setSortBy("id");
         pageSizeDto.setSortDirection("desc");
-        pageSizeDto.setFilterBy("incharge");
+        pageSizeDto.setFilterBy("teacher");
         pageSizeDto.setFilterValue("test");
 
         try (MockedStatic<UserContextHolder> userContextHolderMocked = Mockito.mockStatic(UserContextHolder.class)) {
             userContextHolderMocked.when(UserContextHolder::getContext)
                     .thenReturn(TestUtils.shapeUserContext());
-            Mockito.when(classroomRepository.findByCreatorIdAndInChargeContaining(Mockito.anyLong(), Mockito.anyString(), Mockito.any()))
+            Mockito.when(classroomRepository.findByCreatorIdAndTeacherIdContaining(Mockito.anyLong(), Mockito.anyString(), Mockito.any()))
                     .thenReturn(ClassroomTestUtils.shapePageOfClassroomResponseEntity(1, 10, 20));
 
             Page<ClassroomResponseDto> result = classroomService.fetchAll(pageSizeDto);
 
-            Mockito.verify(classroomRepository).findByCreatorIdAndInChargeContaining(Mockito.anyLong(), Mockito.anyString(), Mockito.any());
+            Mockito.verify(classroomRepository).findByCreatorIdAndTeacherIdContaining(Mockito.anyLong(), Mockito.anyString(), Mockito.any());
             Assertions.assertNotNull(result);
             List<ClassroomResponseDto> content = result.getContent();
             Assertions.assertNotNull(content.get(0).getId());
             Assertions.assertNotNull(content.get(0).getCreatorId());
             Assertions.assertNotNull(content.get(0).getNumber());
-            Assertions.assertNotNull(content.get(0).getInCharge());
+            Assertions.assertNotNull(content.get(0).getTeacher());
             Assertions.assertTrue(content.get(0).getCapacity() > 0);
             Assertions.assertNotNull(content.get(0).getDescription());
             Assertions.assertTrue(content.get(0).getVersion() > 0);
@@ -390,7 +390,7 @@ public class ClassroomServiceTests {
             Assertions.assertNotNull(classroomDto.getId());
             Assertions.assertNotNull(classroomDto.getNumber());
             Assertions.assertTrue(classroomDto.getCapacity() > 0);
-            Assertions.assertNotNull(classroomDto.getInCharge());
+            Assertions.assertNotNull(classroomDto.getTeacher());
             Assertions.assertNotNull(classroomDto.getDescription());
             Assertions.assertTrue(classroomDto.getVersion() > 0);
             Assertions.assertNotNull(classroomDto.getCreatedAt());
@@ -453,7 +453,7 @@ public class ClassroomServiceTests {
             Assertions.assertNotNull(classroomDto.getId());
             Assertions.assertNotNull(classroomDto.getNumber());
             Assertions.assertTrue(classroomDto.getCapacity() > 0);
-            Assertions.assertNotNull(classroomDto.getInCharge());
+            Assertions.assertNotNull(classroomDto.getTeacher());
             Assertions.assertNotNull(classroomDto.getDescription());
             Assertions.assertTrue(classroomDto.getVersion() > 0);
             Assertions.assertNotNull(classroomDto.getCreatedAt());

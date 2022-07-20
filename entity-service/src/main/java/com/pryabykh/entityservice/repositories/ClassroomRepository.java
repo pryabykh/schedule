@@ -16,20 +16,18 @@ public interface ClassroomRepository extends JpaRepository<Classroom, Long> {
 
     Page<Classroom> findByCreatorIdAndNumberContainingIgnoreCase(Long creatorId, String number, Pageable pageable);
 
-    @Query(value = "select * from classrooms where creator_id = :creatorId and CAST(capacity as text) like LOWER(CONCAT('%', :capacity, '%'))",
-            nativeQuery = true)
+    @Query(value = "select c from Classroom c where c.creatorId = :creatorId and CAST(c.capacity as text) like LOWER(CONCAT('%', :capacity, '%'))")
     Page<Classroom> findByCreatorIdAndCapacityContaining(@Param("creatorId") Long creatorId,
                                                          @Param("capacity") String capacity,
                                                          Pageable pageable);
 
     Page<Classroom> findByCreatorIdAndDescriptionContainingIgnoreCase(Long creatorId, String description, Pageable pageable);
 
-    @Query(value = "select * from classrooms c \n" +
-            "join teachers t on t.id = c.in_charge \n" +
-            "where c.creator_id = :creatorId\n" +
-            "and lower(CONCAT(t.last_name, ' ', t.first_name, ' ', t.patronymic)) like lower(CONCAT('%', :inCharge, '%'))",
-            nativeQuery = true)
-    Page<Classroom> findByCreatorIdAndInChargeContaining(@Param("creatorId") Long creatorId,
-                                                         @Param("inCharge") String inCharge,
-                                                         Pageable pageable);
+    @Query(value = "select c from Classroom c \n" +
+            "join c.teacher t\n" +
+            "where c.creatorId = :creatorId\n" +
+            "and lower(CONCAT(t.lastName, ' ', t.firstName, ' ', t.patronymic)) like lower(CONCAT('%', :teacherId, '%'))")
+    Page<Classroom> findByCreatorIdAndTeacherIdContaining(@Param("creatorId") Long creatorId,
+                                                          @Param("teacherId") String teacherId,
+                                                          Pageable pageable);
 }

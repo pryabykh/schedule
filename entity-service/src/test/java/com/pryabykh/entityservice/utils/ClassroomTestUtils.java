@@ -19,7 +19,7 @@ public class ClassroomTestUtils {
         classroomDto.setNumber("1-B");
         classroomDto.setCapacity(20);
         classroomDto.setDescription("Кабинет химии");
-        classroomDto.setInCharge(10L);
+        classroomDto.setTeacher(10L);
         return classroomDto;
     }
 
@@ -28,7 +28,7 @@ public class ClassroomTestUtils {
         classroomDto.setNumber(null);
         classroomDto.setCapacity(0);
         classroomDto.setDescription("Кабинет химии Кабинет химии Кабинет химии Кабинет химии Кабинет химии Кабинет химииКабинет химии Кабинет химии Кабинет химии Кабинет химии Кабинет химии Кабинет химии Кабинет химии Кабинет химии Кабинет химии Кабинет химииКабинет химии Кабинет химии Кабинет химии Кабинет химии");
-        classroomDto.setInCharge(null);
+        classroomDto.setTeacher(null);
         return classroomDto;
     }
 
@@ -43,7 +43,7 @@ public class ClassroomTestUtils {
         classroom.setCreatedAt(new Date());
         classroom.setUpdatedAt(new Date());
         Teacher teacher = new Teacher();
-        classroom.setInCharge(teacher);
+        classroom.setTeacher(teacher);
         return classroom;
     }
 
@@ -58,7 +58,7 @@ public class ClassroomTestUtils {
         classroomDto.setCreatedAt(new Date());
         classroomDto.setUpdatedAt(new Date());
         TeacherResponseDto teacher = new TeacherResponseDto();
-        classroomDto.setInCharge(teacher);
+        classroomDto.setTeacher(teacher);
         return classroomDto;
     }
 

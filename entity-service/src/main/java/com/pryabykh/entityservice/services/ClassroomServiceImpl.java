@@ -155,8 +155,8 @@ public class ClassroomServiceImpl implements ClassroomService {
             case "description": {
                 return classroomRepository.findByCreatorIdAndDescriptionContainingIgnoreCase(creatorId, filterValue, pageable);
             }
-            case "incharge": {
-                return classroomRepository.findByCreatorIdAndInChargeContaining(creatorId, filterValue, pageable);
+            case "teacher": {
+                return classroomRepository.findByCreatorIdAndTeacherIdContaining(creatorId, filterValue, pageable);
             }
             default: {
                 throw new IllegalArgumentException("Unsupported filter criteria - " + filterBy);

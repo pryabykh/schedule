@@ -13,7 +13,7 @@ public class ClassroomDtoUtils {
         classroomDto.setCapacity(classroom.getCapacity());
         classroomDto.setDescription(classroom.getDescription());
         classroomDto.setCreatorId(classroom.getCreatorId());
-        classroomDto.setInCharge(TeacherDtoUtils.convertFromEntity(classroom.getInCharge()));
+        classroomDto.setTeacher(TeacherDtoUtils.convertFromEntity(classroom.getTeacher()));
         classroomDto.setVersion(classroom.getVersion());
         classroomDto.setCreatedAt(classroom.getCreatedAt());
         classroomDto.setUpdatedAt(classroom.getUpdatedAt());
@@ -26,8 +26,8 @@ public class ClassroomDtoUtils {
         classroom.setCapacity(classroomDto.getCapacity());
         classroom.setDescription(classroomDto.getDescription());
         Teacher teacherInCharge = new Teacher();
-        teacherInCharge.setId(classroomDto.getInCharge());
-        classroom.setInCharge(teacherInCharge);
+        teacherInCharge.setId(classroomDto.getTeacher());
+        classroom.setTeacher(teacherInCharge);
         return classroom;
     }
 }

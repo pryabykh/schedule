@@ -29,8 +29,8 @@ public class Classroom {
     private String description;
 
     @ManyToOne
-    @JoinColumn(name = "in_charge")
-    private Teacher inCharge;
+    @JoinColumn(name = "teacher")
+    private Teacher teacher;
 
     @Column(name = "creator_id")
     private Long creatorId;
