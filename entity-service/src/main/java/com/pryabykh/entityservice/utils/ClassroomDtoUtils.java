@@ -38,9 +38,11 @@ public class ClassroomDtoUtils {
         classroom.setNumber(classroomDto.getNumber());
         classroom.setCapacity(classroomDto.getCapacity());
         classroom.setDescription(classroomDto.getDescription());
-        Teacher teacherInCharge = new Teacher();
-        teacherInCharge.setId(classroomDto.getTeacher());
-        classroom.setTeacher(teacherInCharge);
+        if (classroomDto.getTeacher() != null) {
+            Teacher teacherInCharge = new Teacher();
+            teacherInCharge.setId(classroomDto.getTeacher());
+            classroom.setTeacher(teacherInCharge);
+        }
         return classroom;
     }
 }

@@ -53,6 +53,11 @@ public class TeacherDtoUtils {
         teacher.setFirstName(teacherRequestDto.getFirstName());
         teacher.setPatronymic(teacherRequestDto.getPatronymic());
         teacher.setLastName(teacherRequestDto.getLastName());
+        teacherRequestDto.getClassrooms().forEach((classroomId) -> {
+            Classroom classroom = new Classroom();
+            classroom.setId(classroomId);
+            teacher.getClassrooms().add(classroom);
+        });
         return teacher;
     }
 }
