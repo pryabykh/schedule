@@ -12,12 +12,15 @@ import javax.validation.Valid;
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import java.util.List;
 
 @Validated
 public interface TeacherService {
     TeacherResponseDto create(@Valid TeacherRequestDto teacherDto);
 
     Page<TeacherResponseDto> fetchAll(@Valid PageSizeDto pageSizeDto);
+
+    List<TeacherResponseDto> fetchAllList();
 
     TeacherResponseDto fetchById(@NotNull @Min(1) @Max(Long.MAX_VALUE) Long id);
 

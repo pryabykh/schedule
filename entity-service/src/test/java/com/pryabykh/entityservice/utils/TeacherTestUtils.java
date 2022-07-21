@@ -85,4 +85,14 @@ public class TeacherTestUtils {
                 PageRequest.of(page, size),
                 () -> total);
     }
+
+    public static List<TeacherResponseDto> shapeListOfTeacherResponseDtos() {
+        TeacherResponseDto teacherResponseDto = shapeTeacherResponseDto();
+        return Collections.singletonList(teacherResponseDto);
+    }
+
+    public static List<Teacher> shapeListOfTeacherEntities() {
+        Teacher teacher = shapeTeacherEntity();
+        return Collections.singletonList(teacher);
+    }
 }

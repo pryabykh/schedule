@@ -2,6 +2,7 @@ package com.pryabykh.entityservice.services;
 
 import com.pryabykh.entityservice.dtos.request.PageSizeDto;
 import com.pryabykh.entityservice.dtos.response.ClassroomResponseDto;
+import com.pryabykh.entityservice.dtos.response.SubjectResponseDto;
 import com.pryabykh.entityservice.dtos.response.TeacherResponseDto;
 import com.pryabykh.entityservice.exceptions.EntityNotFoundException;
 import com.pryabykh.entityservice.exceptions.PermissionDeniedException;
@@ -10,9 +11,7 @@ import com.pryabykh.entityservice.models.Teacher;
 import com.pryabykh.entityservice.repositories.TeacherRepository;
 import com.pryabykh.entityservice.userContext.UserContext;
 import com.pryabykh.entityservice.userContext.UserContextHolder;
-import com.pryabykh.entityservice.utils.ClassroomTestUtils;
-import com.pryabykh.entityservice.utils.TeacherTestUtils;
-import com.pryabykh.entityservice.utils.TestUtils;
+import com.pryabykh.entityservice.utils.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
@@ -453,6 +452,30 @@ public class TeacherServiceTests {
 
         Assertions.assertThrows(EntityNotFoundException.class, () ->
                 teacherService.update(1L, TeacherTestUtils.shapeTeacherRequestDto()));
+    }
+
+    @Test
+    public void fetchAllListPositive() {
+        UserContext userContext = TestUtils.shapeUserContext();
+        try (MockedStatic<UserContextHolder> userContextHolderMocked = Mockito.mockStatic(UserContextHolder.class)) {
+            userContextHolderMocked.when(UserContextHolder::getContext)
+                    .thenReturn(userContext);
+            Mockito.when(teacherRepository.findAllByCreatorId(Mockito.anyLong()))
+                    .thenReturn(TeacherTestUtils.shapeListOfTeacherEntities());
+
+            List<TeacherResponseDto> teachers = teacherService.fetchAllList();
+            Assertions.assertNotNull(teachers);
+            Assertions.assertTrue(teachers.size() > 0);
+            Assertions.assertNotNull(teachers.get(0).getId());
+            Assertions.assertNotNull(teachers.get(0).getFirstName());
+            Assertions.assertNotNull(teachers.get(0).getPatronymic());
+            Assertions.assertNotNull(teachers.get(0).getLastName());
+            Assertions.assertTrue(teachers.get(0).getVersion() > 0);
+            Assertions.assertNotNull(teachers.get(0).getUpdatedAt());
+            Assertions.assertNotNull(teachers.get(0).getCreatedAt());
+            Assertions.assertNotNull(teachers.get(0).getCreatorId());
+            Assertions.assertNotNull(teachers.get(0).getClassrooms());
+        }
     }
 
     @Autowired

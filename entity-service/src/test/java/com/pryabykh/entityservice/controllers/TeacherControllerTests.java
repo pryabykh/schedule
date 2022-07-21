@@ -4,6 +4,7 @@ import com.pryabykh.entityservice.dtos.request.TeacherRequestDto;
 import com.pryabykh.entityservice.exceptions.EntityNotFoundException;
 import com.pryabykh.entityservice.exceptions.PermissionDeniedException;
 import com.pryabykh.entityservice.services.TeacherService;
+import com.pryabykh.entityservice.utils.SubjectTestUtils;
 import com.pryabykh.entityservice.utils.TeacherTestUtils;
 import com.pryabykh.entityservice.utils.TestUtils;
 import org.junit.jupiter.api.Test;
@@ -242,6 +243,24 @@ public class TeacherControllerTests {
         mockMvc.perform(put("/v1/teachers/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(TestUtils.toJson(teacherRequestDto)))
+                .andExpect(status().isInternalServerError());
+    }
+
+    @Test
+    public void fetchAllListPositive() throws Exception {
+        Mockito.when(teacherService.fetchAllList())
+                .thenReturn(TeacherTestUtils.shapeListOfTeacherResponseDtos());
+
+        mockMvc.perform(get("/v1/teachers/list"))
+                .andExpect(status().isOk());
+    }
+
+    @Test
+    public void fetchAllInternalError() throws Exception {
+        Mockito.when(teacherService.fetchAllList())
+                .thenThrow(RuntimeException.class);
+
+        mockMvc.perform(get("/v1/teachers/list"))
                 .andExpect(status().isInternalServerError());
     }
 }

@@ -14,8 +14,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class TeacherServiceImpl implements TeacherService {
@@ -48,21 +50,35 @@ public class TeacherServiceImpl implements TeacherService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<TeacherResponseDto> fetchAll(PageSizeDto pageSizeDto) {
         return null;
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public List<TeacherResponseDto> fetchAllList() {
+        Long userId = UserContextHolder.getContext().getUserId();
+        return teacherRepository.findAllByCreatorId(userId)
+                .stream()
+                .map(TeacherDtoUtils::convertFromEntityWithoutClassroom)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public TeacherResponseDto fetchById(Long id) {
         return null;
     }
 
     @Override
+    @Transactional
     public TeacherResponseDto update(Long id, TeacherRequestDto teacherDto) {
         return null;
     }
 
     @Override
+    @Transactional
     public void delete(Long id) {
 
     }

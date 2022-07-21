@@ -2,6 +2,7 @@ package com.pryabykh.entityservice.controllers;
 
 import com.pryabykh.entityservice.dtos.request.PageSizeDto;
 import com.pryabykh.entityservice.dtos.request.TeacherRequestDto;
+import com.pryabykh.entityservice.dtos.response.SubjectResponseDto;
 import com.pryabykh.entityservice.dtos.response.TeacherResponseDto;
 import com.pryabykh.entityservice.exceptions.EntityNotFoundException;
 import com.pryabykh.entityservice.exceptions.PermissionDeniedException;
@@ -12,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.ConstraintViolationException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/v1/teachers")
@@ -30,6 +32,11 @@ public class TeacherController {
     @PostMapping("/all")
     ResponseEntity<Page<TeacherResponseDto>> fetchAll(@RequestBody PageSizeDto pageSizeDto) {
         return ResponseEntity.ok(teacherService.fetchAll(pageSizeDto));
+    }
+
+    @GetMapping("/list")
+    ResponseEntity<List<TeacherResponseDto>> fetchAll() {
+        return ResponseEntity.ok(teacherService.fetchAllList());
     }
 
     @GetMapping("/{id}")
