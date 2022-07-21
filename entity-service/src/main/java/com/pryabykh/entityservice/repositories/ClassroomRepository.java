@@ -14,6 +14,8 @@ import java.util.Optional;
 public interface ClassroomRepository extends JpaRepository<Classroom, Long> {
     Optional<Classroom> findByNumberAndCreatorId(String number, Long creatorId);
 
+    Optional<Classroom> findByIdAndCreatorId(Long id, Long creatorId);
+
     Page<Classroom> findAllByCreatorId(Long creatorId, Pageable pageable);
 
     Page<Classroom> findByCreatorIdAndNumberContainingIgnoreCase(Long creatorId, String number, Pageable pageable);

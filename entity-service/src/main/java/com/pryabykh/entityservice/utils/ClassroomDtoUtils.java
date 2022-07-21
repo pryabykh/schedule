@@ -13,7 +13,20 @@ public class ClassroomDtoUtils {
         classroomDto.setCapacity(classroom.getCapacity());
         classroomDto.setDescription(classroom.getDescription());
         classroomDto.setCreatorId(classroom.getCreatorId());
-        classroomDto.setTeacher(TeacherDtoUtils.convertFromEntity(classroom.getTeacher()));
+        classroomDto.setTeacher(TeacherDtoUtils.convertFromEntityWithoutClassroom(classroom.getTeacher()));
+        classroomDto.setVersion(classroom.getVersion());
+        classroomDto.setCreatedAt(classroom.getCreatedAt());
+        classroomDto.setUpdatedAt(classroom.getUpdatedAt());
+        return classroomDto;
+    }
+
+    public static ClassroomResponseDto convertFromEntityWithoutTeacher(Classroom classroom) {
+        ClassroomResponseDto classroomDto = new ClassroomResponseDto();
+        classroomDto.setId(classroom.getId());
+        classroomDto.setNumber(classroom.getNumber());
+        classroomDto.setCapacity(classroom.getCapacity());
+        classroomDto.setDescription(classroom.getDescription());
+        classroomDto.setCreatorId(classroom.getCreatorId());
         classroomDto.setVersion(classroom.getVersion());
         classroomDto.setCreatedAt(classroom.getCreatedAt());
         classroomDto.setUpdatedAt(classroom.getUpdatedAt());

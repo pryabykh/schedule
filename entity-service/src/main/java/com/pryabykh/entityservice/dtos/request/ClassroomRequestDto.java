@@ -8,9 +8,9 @@ import javax.validation.constraints.*;
 public class ClassroomRequestDto {
     @NotEmpty @Size(min = 1, max = 255)
     private String number;
-    @NotNull @Min(1) @Max(999999)
+    @NotNull @Min(1) @Max(Integer.MAX_VALUE)
     private int capacity;
-    @Size(max = 255)
+    @NotNull @Size(max = 255)
     private String description;
     @Max(Long.MAX_VALUE)
     private Long teacher;
