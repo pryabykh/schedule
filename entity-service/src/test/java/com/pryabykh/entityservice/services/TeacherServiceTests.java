@@ -1,12 +1,9 @@
 package com.pryabykh.entityservice.services;
 
 import com.pryabykh.entityservice.dtos.request.PageSizeDto;
-import com.pryabykh.entityservice.dtos.response.ClassroomResponseDto;
-import com.pryabykh.entityservice.dtos.response.SubjectResponseDto;
 import com.pryabykh.entityservice.dtos.response.TeacherResponseDto;
 import com.pryabykh.entityservice.exceptions.EntityNotFoundException;
 import com.pryabykh.entityservice.exceptions.PermissionDeniedException;
-import com.pryabykh.entityservice.models.Classroom;
 import com.pryabykh.entityservice.models.Teacher;
 import com.pryabykh.entityservice.repositories.TeacherRepository;
 import com.pryabykh.entityservice.userContext.UserContext;

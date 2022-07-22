@@ -69,7 +69,9 @@ public class TeacherTestUtils {
         teacher.setCreatedAt(new Date());
         teacher.setUpdatedAt(new Date());
         teacher.setVersion(1);
-        teacher.setClassrooms(new HashSet<>(List.of(new Classroom())));
+        Classroom classroom = new Classroom();
+        classroom.setId(1L);
+        teacher.setClassrooms(new HashSet<>(List.of(classroom)));
         return teacher;
     }
 

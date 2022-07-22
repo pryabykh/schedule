@@ -10,8 +10,10 @@ import com.pryabykh.entityservice.models.Teacher;
 import com.pryabykh.entityservice.repositories.ClassroomRepository;
 import com.pryabykh.entityservice.repositories.TeacherRepository;
 import com.pryabykh.entityservice.userContext.UserContextHolder;
+import com.pryabykh.entityservice.utils.CommonUtils;
 import com.pryabykh.entityservice.utils.TeacherDtoUtils;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -53,7 +55,17 @@ public class TeacherServiceImpl implements TeacherService {
     @Override
     @Transactional(readOnly = true)
     public Page<TeacherResponseDto> fetchAll(PageSizeDto pageSizeDto) {
-        return null;
+        Pageable pageable = CommonUtils.createPageable(pageSizeDto);
+        Long userId = UserContextHolder.getContext().getUserId();
+        if (!CommonUtils.hasFiltration(pageSizeDto)) {
+            return teacherRepository.findAllByCreatorId(userId, pageable)
+                    .map(TeacherDtoUtils::convertFromEntity);
+        }
+        return fetchAllByFilterAndCreatorId(pageSizeDto.getFilterBy(),
+                pageSizeDto.getFilterValue(),
+                userId,
+                pageable)
+                .map(TeacherDtoUtils::convertFromEntity);
     }
 
     @Override
@@ -69,7 +81,16 @@ public class TeacherServiceImpl implements TeacherService {
     @Override
     @Transactional(readOnly = true)
     public TeacherResponseDto fetchById(Long id) {
-        return null;
+        Optional<Teacher> optionalTeacher = teacherRepository.findById(id);
+        if (optionalTeacher.isEmpty()) {
+            throw new EntityNotFoundException();
+        }
+        Long creatorId = optionalTeacher.get().getCreatorId();
+        Long currentUserId = UserContextHolder.getContext().getUserId();
+        if (!creatorId.equals(currentUserId)) {
+            throw new PermissionDeniedException();
+        }
+        return TeacherDtoUtils.convertFromEntity(optionalTeacher.get());
     }
 
     @Override
@@ -117,7 +138,16 @@ public class TeacherServiceImpl implements TeacherService {
     @Override
     @Transactional
     public void delete(Long id) {
-
+        Optional<Teacher> optionalTeacher = teacherRepository.findById(id);
+        if (optionalTeacher.isEmpty()) {
+            throw new EntityNotFoundException();
+        }
+        Long creatorId = optionalTeacher.get().getCreatorId();
+        Long currentUserId = UserContextHolder.getContext().getUserId();
+        if (!creatorId.equals(currentUserId)) {
+            throw new PermissionDeniedException();
+        }
+        teacherRepository.deleteById(id);
     }
 
     private List<Classroom> fetchClassroomsWhereTeacherSetToNull(Teacher currentTeacher, Teacher newTeacher) {
@@ -138,5 +168,25 @@ public class TeacherServiceImpl implements TeacherService {
                             .stream()
                             .noneMatch(currentClassroom -> currentClassroom.getId().equals(newClassroom.getId()));
                 }).collect(Collectors.toList());
+    }
+
+    private Page<Teacher> fetchAllByFilterAndCreatorId(String filterBy,
+                                                       String filterValue,
+                                                       Long creatorId,
+                                                       Pageable pageable) {
+        switch (filterBy.toLowerCase()) {
+            case "firstname": {
+                return teacherRepository.findByCreatorIdAndFirstNameContainingIgnoreCase(creatorId, filterValue, pageable);
+            }
+            case "patronymic": {
+                return teacherRepository.findByCreatorIdAndPatronymicContainingIgnoreCase(creatorId, filterValue, pageable);
+            }
+            case "lastname": {
+                return teacherRepository.findByCreatorIdAndLastNameContainingIgnoreCase(creatorId, filterValue, pageable);
+            }
+            default: {
+                throw new IllegalArgumentException("Unsupported filter criteria - " + filterBy);
+            }
+        }
     }
 }

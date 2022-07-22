@@ -26,7 +26,7 @@ public class TeacherDtoUtils {
         teacherResponseDto.setUpdatedAt(teacher.getUpdatedAt());
         Set<ClassroomResponseDto> classroomsResponse = teacher.getClassrooms()
                 .stream()
-                .map((ClassroomDtoUtils::convertFromEntity))
+                .map((ClassroomDtoUtils::convertFromEntityWithoutTeacher))
                 .collect(Collectors.toSet());
         teacherResponseDto.setClassrooms(classroomsResponse);
         return teacherResponseDto;

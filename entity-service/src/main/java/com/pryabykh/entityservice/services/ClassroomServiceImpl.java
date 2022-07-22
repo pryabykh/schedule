@@ -10,6 +10,7 @@ import com.pryabykh.entityservice.models.Classroom;
 import com.pryabykh.entityservice.repositories.ClassroomRepository;
 import com.pryabykh.entityservice.userContext.UserContextHolder;
 import com.pryabykh.entityservice.utils.ClassroomDtoUtils;
+import com.pryabykh.entityservice.utils.CommonUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -44,9 +45,9 @@ public class ClassroomServiceImpl implements ClassroomService {
     @Override
     @Transactional(readOnly = true)
     public Page<ClassroomResponseDto> fetchAll(PageSizeDto pageSizeDto) {
-        Pageable pageable = createPageable(pageSizeDto);
+        Pageable pageable = CommonUtils.createPageable(pageSizeDto);
         Long userId = UserContextHolder.getContext().getUserId();
-        if (!hasFiltration(pageSizeDto)) {
+        if (!CommonUtils.hasFiltration(pageSizeDto)) {
             return classroomRepository.findAllByCreatorId(userId, pageable)
                     .map(ClassroomDtoUtils::convertFromEntity);
         }
@@ -113,32 +114,6 @@ public class ClassroomServiceImpl implements ClassroomService {
 
     private boolean classroomWithGivenNumberAlreadyExists(ClassroomRequestDto classroomDto, Long userId) {
         return classroomRepository.findByNumberAndCreatorId(classroomDto.getNumber(), userId).isPresent();
-    }
-
-    private Pageable createPageable(PageSizeDto pageSizeDto) {
-        int page = pageSizeDto.getPage();
-        int size = pageSizeDto.getSize();
-        String sortBy = pageSizeDto.getSortBy();
-        String sortDirection = pageSizeDto.getSortDirection();
-        if (sortBy == null || sortDirection == null) {
-            return PageRequest.of(page, size);
-        }
-        if (sortDirection.equalsIgnoreCase("ASC")) {
-            return PageRequest.of(page, size, Sort.by(sortBy).ascending());
-        } else if (sortDirection.equalsIgnoreCase("DESC")) {
-            return PageRequest.of(page, size, Sort.by(sortBy).descending());
-        } else {
-            throw new IllegalArgumentException("sortDirection can be ASC or DESC only");
-        }
-    }
-
-    private boolean hasFiltration(PageSizeDto pageSizeDto) {
-        String filterBy = pageSizeDto.getFilterBy();
-        String filterValue = pageSizeDto.getFilterValue();
-        if (filterBy == null || filterBy.equals("") || filterValue == null  || filterValue.equals("")) {
-            return false;
-        }
-        return true;
     }
 
     private Page<Classroom> fetchAllByFilterAndCreatorId(String filterBy,
