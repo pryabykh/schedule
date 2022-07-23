@@ -39,6 +39,7 @@ public class SubjectServiceTests {
         Assertions.assertNotNull(subjects.get(0).getNinthGrade());
         Assertions.assertNotNull(subjects.get(0).getTenthGrade());
         Assertions.assertNotNull(subjects.get(0).getEleventhGrade());
+        Assertions.assertNotNull(subjects.get(0).getClassrooms());
     }
 
     @Autowired

@@ -2,6 +2,9 @@ package com.pryabykh.entityservice.dtos.response;
 
 import lombok.Data;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Data
 public class SubjectResponseDto {
     private Long id;
@@ -17,4 +20,5 @@ public class SubjectResponseDto {
     private Integer ninthGrade;
     private Integer tenthGrade;
     private Integer eleventhGrade;
+    private Set<ClassroomResponseDto> classrooms = new HashSet<>();
 }

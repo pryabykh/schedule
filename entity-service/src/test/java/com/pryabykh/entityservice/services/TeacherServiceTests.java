@@ -5,6 +5,7 @@ import com.pryabykh.entityservice.dtos.response.TeacherResponseDto;
 import com.pryabykh.entityservice.exceptions.EntityNotFoundException;
 import com.pryabykh.entityservice.exceptions.PermissionDeniedException;
 import com.pryabykh.entityservice.models.Teacher;
+import com.pryabykh.entityservice.repositories.ClassroomRepository;
 import com.pryabykh.entityservice.repositories.TeacherRepository;
 import com.pryabykh.entityservice.userContext.UserContext;
 import com.pryabykh.entityservice.userContext.UserContextHolder;
@@ -29,21 +30,30 @@ public class TeacherServiceTests {
     private TeacherService teacherService;
     @MockBean
     private TeacherRepository teacherRepository;
+    @MockBean
+    ClassroomRepository classroomRepository;
 
     @Test
     public void createPositive() {
-        Mockito.when(teacherRepository.save(Mockito.any()))
-                .thenReturn(TeacherTestUtils.shapeTeacherEntity());
-        TeacherResponseDto teacherDto = teacherService.create(TeacherTestUtils.shapeTeacherRequestDto());
-        Assertions.assertNotNull(teacherDto.getId());
-        Assertions.assertNotNull(teacherDto.getFirstName());
-        Assertions.assertNotNull(teacherDto.getPatronymic());
-        Assertions.assertNotNull(teacherDto.getLastName());
-        Assertions.assertNotNull(teacherDto.getCreatorId());
-        Assertions.assertNotNull(teacherDto.getClassrooms());
-        Assertions.assertTrue(teacherDto.getVersion() > 0);
-        Assertions.assertNotNull(teacherDto.getCreatedAt());
-        Assertions.assertNotNull(teacherDto.getUpdatedAt());
+        UserContext userContext = TestUtils.shapeUserContext();
+        try (MockedStatic<UserContextHolder> userContextHolderMocked = Mockito.mockStatic(UserContextHolder.class)) {
+            userContextHolderMocked.when(UserContextHolder::getContext)
+                    .thenReturn(userContext);
+            Mockito.when(teacherRepository.save(Mockito.any()))
+                    .thenReturn(TeacherTestUtils.shapeTeacherEntity());
+            Mockito.when(classroomRepository.findByIdAndCreatorId(Mockito.anyLong(), Mockito.anyLong()))
+                    .thenReturn(Optional.of(ClassroomTestUtils.shapeClassroomEntity()));
+            TeacherResponseDto teacherDto = teacherService.create(TeacherTestUtils.shapeTeacherRequestDto());
+            Assertions.assertNotNull(teacherDto.getId());
+            Assertions.assertNotNull(teacherDto.getFirstName());
+            Assertions.assertNotNull(teacherDto.getPatronymic());
+            Assertions.assertNotNull(teacherDto.getLastName());
+            Assertions.assertNotNull(teacherDto.getCreatorId());
+            Assertions.assertNotNull(teacherDto.getClassrooms());
+            Assertions.assertTrue(teacherDto.getVersion() > 0);
+            Assertions.assertNotNull(teacherDto.getCreatedAt());
+            Assertions.assertNotNull(teacherDto.getUpdatedAt());
+        }
     }
 
     @Test
@@ -402,6 +412,8 @@ public class TeacherServiceTests {
                     .thenReturn(Optional.of(teacherEntity));
             Mockito.when(teacherRepository.save(Mockito.any()))
                     .thenReturn(teacherEntity);
+            Mockito.when(classroomRepository.findByIdAndCreatorId(Mockito.anyLong(), Mockito.anyLong()))
+                    .thenReturn(Optional.of(ClassroomTestUtils.shapeClassroomEntity()));
             TeacherResponseDto teacherDto = teacherService.update(1L, TeacherTestUtils.shapeTeacherRequestDto());
             Assertions.assertNotNull(teacherDto.getId());
             Assertions.assertNotNull(teacherDto.getFirstName());

@@ -2,8 +2,10 @@ package com.pryabykh.entityservice.utils;
 
 import com.pryabykh.entityservice.dtos.request.ClassroomRequestDto;
 import com.pryabykh.entityservice.dtos.response.ClassroomResponseDto;
+import com.pryabykh.entityservice.dtos.response.SubjectResponseDto;
 import com.pryabykh.entityservice.dtos.response.TeacherResponseDto;
 import com.pryabykh.entityservice.models.Classroom;
+import com.pryabykh.entityservice.models.Subject;
 import com.pryabykh.entityservice.models.Teacher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -11,6 +13,7 @@ import org.springframework.data.support.PageableExecutionUtils;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 
 public class ClassroomTestUtils {
@@ -20,6 +23,7 @@ public class ClassroomTestUtils {
         classroomDto.setCapacity(20);
         classroomDto.setDescription("Кабинет химии");
         classroomDto.setTeacher(10L);
+        classroomDto.setSubjects(new HashSet<>(List.of(1L, 2L, 3L)));
         return classroomDto;
     }
 
@@ -29,6 +33,7 @@ public class ClassroomTestUtils {
         classroomDto.setCapacity(0);
         classroomDto.setDescription("Кабинет химии Кабинет химии Кабинет химии Кабинет химии Кабинет химии Кабинет химииКабинет химии Кабинет химии Кабинет химии Кабинет химии Кабинет химии Кабинет химии Кабинет химии Кабинет химии Кабинет химии Кабинет химииКабинет химии Кабинет химии Кабинет химии Кабинет химии");
         classroomDto.setTeacher(null);
+        classroomDto.setSubjects(null);
         return classroomDto;
     }
 
@@ -44,6 +49,8 @@ public class ClassroomTestUtils {
         classroom.setUpdatedAt(new Date());
         Teacher teacher = new Teacher();
         classroom.setTeacher(teacher);
+        Subject subject = new Subject();
+        classroom.setSubjects(new HashSet<>(List.of(subject)));
         return classroom;
     }
 
@@ -59,6 +66,8 @@ public class ClassroomTestUtils {
         classroomDto.setUpdatedAt(new Date());
         TeacherResponseDto teacher = new TeacherResponseDto();
         classroomDto.setTeacher(teacher);
+        SubjectResponseDto subject = new SubjectResponseDto();
+        classroomDto.setSubjects(new HashSet<>(List.of(subject)));
         return classroomDto;
     }
 

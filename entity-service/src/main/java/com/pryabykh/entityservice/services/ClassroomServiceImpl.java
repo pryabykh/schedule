@@ -8,13 +8,13 @@ import com.pryabykh.entityservice.exceptions.EntityNotFoundException;
 import com.pryabykh.entityservice.exceptions.PermissionDeniedException;
 import com.pryabykh.entityservice.models.Classroom;
 import com.pryabykh.entityservice.repositories.ClassroomRepository;
+import com.pryabykh.entityservice.repositories.SubjectRepository;
+import com.pryabykh.entityservice.repositories.TeacherRepository;
 import com.pryabykh.entityservice.userContext.UserContextHolder;
 import com.pryabykh.entityservice.utils.ClassroomDtoUtils;
 import com.pryabykh.entityservice.utils.CommonUtils;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,9 +24,13 @@ import java.util.Optional;
 @Service
 public class ClassroomServiceImpl implements ClassroomService {
     private final ClassroomRepository classroomRepository;
+    private final SubjectRepository subjectRepository;
+    private final TeacherRepository teacherRepository;
 
-    public ClassroomServiceImpl(ClassroomRepository classroomRepository) {
+    public ClassroomServiceImpl(ClassroomRepository classroomRepository, SubjectRepository subjectRepository, TeacherRepository teacherRepository) {
         this.classroomRepository = classroomRepository;
+        this.subjectRepository = subjectRepository;
+        this.teacherRepository = teacherRepository;
     }
 
     @Override
@@ -36,7 +40,9 @@ public class ClassroomServiceImpl implements ClassroomService {
         if (classroomWithGivenNumberAlreadyExists(classroomDto, userId)) {
             throw new EntityAlreadyExistsException();
         }
-        Classroom classroomEntity = ClassroomDtoUtils.convertToEntity(classroomDto);
+        Classroom classroomEntity = ClassroomDtoUtils.convertToEntity(classroomDto,
+                subjectRepository,
+                teacherRepository);
         classroomEntity.setCreatorId(userId);
         Classroom savedClassroom = classroomRepository.save(classroomEntity);
         return ClassroomDtoUtils.convertFromEntity(savedClassroom);
@@ -90,10 +96,14 @@ public class ClassroomServiceImpl implements ClassroomService {
                 throw new EntityAlreadyExistsException();
             }
         }
-        Classroom newClassroom = ClassroomDtoUtils.convertToEntity(classroomDto);
+        Classroom newClassroom = ClassroomDtoUtils.convertToEntity(classroomDto,
+                subjectRepository,
+                teacherRepository);
         currentClassroom.setNumber(newClassroom.getNumber());
         currentClassroom.setCapacity(newClassroom.getCapacity());
         currentClassroom.setDescription(newClassroom.getDescription());
+        currentClassroom.setSubjects(newClassroom.getSubjects());
+        currentClassroom.setTeacher(newClassroom.getTeacher());
         return ClassroomDtoUtils.convertFromEntity(classroomRepository.save(currentClassroom));
     }
 
@@ -132,6 +142,9 @@ public class ClassroomServiceImpl implements ClassroomService {
             }
             case "teacher": {
                 return classroomRepository.findByCreatorIdAndTeacherIdContaining(creatorId, filterValue, pageable);
+            }
+            case "subject": {
+                return classroomRepository.findByCreatorIdAndSubjectsContaining(creatorId, filterValue, pageable);
             }
             default: {
                 throw new IllegalArgumentException("Unsupported filter criteria - " + filterBy);

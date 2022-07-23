@@ -3,6 +3,8 @@ package com.pryabykh.entityservice.dtos.request;
 import lombok.Data;
 
 import javax.validation.constraints.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 public class ClassroomRequestDto {
@@ -14,4 +16,6 @@ public class ClassroomRequestDto {
     private String description;
     @Max(Long.MAX_VALUE)
     private Long teacher;
+    @NotNull @Size(max = 50)
+    private Set<Long> subjects = new HashSet<>();
 }

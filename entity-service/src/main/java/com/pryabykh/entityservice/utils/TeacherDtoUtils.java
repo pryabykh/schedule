@@ -3,10 +3,12 @@ package com.pryabykh.entityservice.utils;
 import com.pryabykh.entityservice.dtos.request.TeacherRequestDto;
 import com.pryabykh.entityservice.dtos.response.ClassroomResponseDto;
 import com.pryabykh.entityservice.dtos.response.TeacherResponseDto;
+import com.pryabykh.entityservice.exceptions.EntityNotFoundException;
 import com.pryabykh.entityservice.models.Classroom;
 import com.pryabykh.entityservice.models.Teacher;
+import com.pryabykh.entityservice.repositories.ClassroomRepository;
+import com.pryabykh.entityservice.userContext.UserContextHolder;
 
-import java.util.Collections;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -26,13 +28,13 @@ public class TeacherDtoUtils {
         teacherResponseDto.setUpdatedAt(teacher.getUpdatedAt());
         Set<ClassroomResponseDto> classroomsResponse = teacher.getClassrooms()
                 .stream()
-                .map((ClassroomDtoUtils::convertFromEntityWithoutTeacher))
+                .map((ClassroomDtoUtils::convertFromEntityNoRecursion))
                 .collect(Collectors.toSet());
         teacherResponseDto.setClassrooms(classroomsResponse);
         return teacherResponseDto;
     }
 
-    public static TeacherResponseDto convertFromEntityWithoutClassroom(Teacher teacher) {
+    public static TeacherResponseDto convertFromEntityNoRecursion(Teacher teacher) {
         if (teacher == null) {
             return null;
         }
@@ -48,16 +50,23 @@ public class TeacherDtoUtils {
         return teacherResponseDto;
     }
 
-    public static Teacher convertToEntity(TeacherRequestDto teacherRequestDto) {
+    public static Teacher convertToEntity(TeacherRequestDto teacherRequestDto,
+                                          ClassroomRepository classroomRepository) {
+        if (teacherRequestDto == null) {
+            return null;
+        }
         Teacher teacher = new Teacher();
         teacher.setFirstName(teacherRequestDto.getFirstName());
         teacher.setPatronymic(teacherRequestDto.getPatronymic());
         teacher.setLastName(teacherRequestDto.getLastName());
-        teacherRequestDto.getClassrooms().forEach((classroomId) -> {
-            Classroom classroom = new Classroom();
-            classroom.setId(classroomId);
-            teacher.getClassrooms().add(classroom);
-        });
+        Long userId = UserContextHolder.getContext().getUserId();
+        Set<Classroom> classrooms = teacherRequestDto.getClassrooms()
+                .stream()
+                .map((classroomId) -> {
+                    return classroomRepository.findByIdAndCreatorId(classroomId, userId).orElseThrow(EntityNotFoundException::new);
+                })
+                .collect(Collectors.toSet());
+        teacher.setClassrooms(classrooms);
         return teacher;
     }
 }

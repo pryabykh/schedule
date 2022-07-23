@@ -30,8 +30,16 @@ public interface ClassroomRepository extends JpaRepository<Classroom, Long> {
     @Query(value = "select c from Classroom c \n" +
             "join c.teacher t\n" +
             "where c.creatorId = :creatorId\n" +
-            "and lower(CONCAT(t.lastName, ' ', t.firstName, ' ', t.patronymic)) like lower(CONCAT('%', :teacherId, '%'))")
+            "and lower(CONCAT(t.lastName, ' ', t.firstName, ' ', t.patronymic)) like lower(CONCAT('%', :teacherFio, '%'))")
     Page<Classroom> findByCreatorIdAndTeacherIdContaining(@Param("creatorId") Long creatorId,
-                                                          @Param("teacherId") String teacherId,
+                                                          @Param("teacherFio") String teacherFio,
                                                           Pageable pageable);
+
+    @Query(value = "select c from Classroom c \n" +
+            "join c.subjects s \n" +
+            "where c.creatorId = :creatorId \n" +
+            "and lower(s.name) like lower(CONCAT('%', :subject, '%'))")
+    Page<Classroom> findByCreatorIdAndSubjectsContaining(@Param("creatorId") Long creatorId,
+                                                         @Param("subject") String subject,
+                                                         Pageable pageable);
 }

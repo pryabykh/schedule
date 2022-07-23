@@ -20,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -36,20 +37,10 @@ public class TeacherServiceImpl implements TeacherService {
     @Transactional
     public TeacherResponseDto create(TeacherRequestDto teacherDto) {
         Long userId = UserContextHolder.getContext().getUserId();
-        Teacher teacherEntity = TeacherDtoUtils.convertToEntity(teacherDto);
+        Teacher teacherEntity = TeacherDtoUtils.convertToEntity(teacherDto, classroomRepository);
         teacherEntity.setCreatorId(userId);
         Teacher savedTeacher = teacherRepository.save(teacherEntity);
-        teacherDto.getClassrooms().forEach((classroomId) -> {
-            Optional<Classroom> optionalClassroom = classroomRepository.findByIdAndCreatorId(classroomId, userId);
-            if (optionalClassroom.isPresent()) {
-                Teacher teacher = new Teacher();
-                teacher.setId(savedTeacher.getId());
-                Classroom classroom = optionalClassroom.get();
-                classroom.setTeacher(teacher);
-                classroomRepository.save(classroom);
-            }
-        });
-        return TeacherDtoUtils.convertFromEntityWithoutClassroom(savedTeacher);
+        return TeacherDtoUtils.convertFromEntityNoRecursion(savedTeacher);
     }
 
     @Override
@@ -74,7 +65,7 @@ public class TeacherServiceImpl implements TeacherService {
         Long userId = UserContextHolder.getContext().getUserId();
         return teacherRepository.findAllByCreatorId(userId)
                 .stream()
-                .map(TeacherDtoUtils::convertFromEntityWithoutClassroom)
+                .map(TeacherDtoUtils::convertFromEntityNoRecursion)
                 .collect(Collectors.toList());
     }
 
@@ -105,34 +96,13 @@ public class TeacherServiceImpl implements TeacherService {
         if (!Objects.equals(currentTeacher.getCreatorId(), userId)) {
             throw new PermissionDeniedException();
         }
-        Teacher newTeacher = TeacherDtoUtils.convertToEntity(teacherDto);
+        Teacher newTeacher = TeacherDtoUtils.convertToEntity(teacherDto, classroomRepository);
         currentTeacher.setFirstName(newTeacher.getFirstName());
         currentTeacher.setPatronymic(newTeacher.getPatronymic());
         currentTeacher.setLastName(newTeacher.getLastName());
+        currentTeacher.setClassrooms(newTeacher.getClassrooms());
         Teacher savedTeacher = teacherRepository.save(currentTeacher);
-        List<Classroom> classroomsToDeleteTeacher = fetchClassroomsWhereTeacherSetToNull(currentTeacher, newTeacher);
-        classroomsToDeleteTeacher.forEach(classroomIdOnly -> {
-            Long classroomId = classroomIdOnly.getId();
-            Optional<Classroom> optionalClassroom = classroomRepository.findByIdAndCreatorId(classroomId, userId);
-            if (optionalClassroom.isPresent()) {
-                Classroom classroom = optionalClassroom.get();
-                classroom.setTeacher(null);
-                classroomRepository.save(classroom);
-            }
-        });
-        List<Classroom> classroomsToAddTeacher = fetchClassroomsWhereAddTeacher(currentTeacher, newTeacher);
-        classroomsToAddTeacher.forEach(classroomIdOnly -> {
-            Long classroomId = classroomIdOnly.getId();
-            Optional<Classroom> optionalClassroom = classroomRepository.findByIdAndCreatorId(classroomId, userId);
-            if (optionalClassroom.isPresent()) {
-                Teacher teacher = new Teacher();
-                teacher.setId(savedTeacher.getId());
-                Classroom classroom = optionalClassroom.get();
-                classroom.setTeacher(teacher);
-                classroomRepository.save(classroom);
-            }
-        });
-        return TeacherDtoUtils.convertFromEntityWithoutClassroom(savedTeacher);
+        return TeacherDtoUtils.convertFromEntityNoRecursion(savedTeacher);
     }
 
     @Override
@@ -148,26 +118,6 @@ public class TeacherServiceImpl implements TeacherService {
             throw new PermissionDeniedException();
         }
         teacherRepository.deleteById(id);
-    }
-
-    private List<Classroom> fetchClassroomsWhereTeacherSetToNull(Teacher currentTeacher, Teacher newTeacher) {
-        return currentTeacher.getClassrooms()
-                .stream()
-                .filter(currentClassroom -> {
-                    return newTeacher.getClassrooms()
-                            .stream()
-                            .noneMatch(newClassroom -> newClassroom.getId().equals(currentClassroom.getId()));
-                }).collect(Collectors.toList());
-    }
-
-    private List<Classroom> fetchClassroomsWhereAddTeacher(Teacher currentTeacher, Teacher newTeacher) {
-        return newTeacher.getClassrooms()
-                .stream()
-                .filter(newClassroom -> {
-                    return currentTeacher.getClassrooms()
-                            .stream()
-                            .noneMatch(currentClassroom -> currentClassroom.getId().equals(newClassroom.getId()));
-                }).collect(Collectors.toList());
     }
 
     private Page<Teacher> fetchAllByFilterAndCreatorId(String filterBy,
@@ -188,5 +138,65 @@ public class TeacherServiceImpl implements TeacherService {
                 throw new IllegalArgumentException("Unsupported filter criteria - " + filterBy);
             }
         }
+    }
+
+    private void saveAssociatedClassrooms(Set<Long> classrooms, Long teacherId) {
+        Long userId = UserContextHolder.getContext().getUserId();
+        classrooms.forEach((classroomId) -> {
+            Optional<Classroom> optionalClassroom = classroomRepository.findByIdAndCreatorId(classroomId, userId);
+            if (optionalClassroom.isPresent()) {
+                Teacher teacher = new Teacher();
+                teacher.setId(teacherId);
+                Classroom classroom = optionalClassroom.get();
+                classroom.setTeacher(teacher);
+                classroomRepository.save(classroom);
+            }
+        });
+    }
+
+    private void updateAssociatedClassrooms(Teacher currentTeacher, Teacher newTeacher) {
+        Long userId = UserContextHolder.getContext().getUserId();
+        List<Classroom> classroomsToDeleteTeacher = fetchClassroomsWhereTeacherSetToNull(currentTeacher, newTeacher);
+        classroomsToDeleteTeacher.forEach(classroomIdOnly -> {
+            Long classroomId = classroomIdOnly.getId();
+            Optional<Classroom> optionalClassroom = classroomRepository.findByIdAndCreatorId(classroomId, userId);
+            if (optionalClassroom.isPresent()) {
+                Classroom classroom = optionalClassroom.get();
+                classroom.setTeacher(null);
+                classroomRepository.save(classroom);
+            }
+        });
+        List<Classroom> classroomsToAddTeacher = fetchClassroomsWhereAddTeacher(currentTeacher, newTeacher);
+        classroomsToAddTeacher.forEach(classroomIdOnly -> {
+            Long classroomId = classroomIdOnly.getId();
+            Optional<Classroom> optionalClassroom = classroomRepository.findByIdAndCreatorId(classroomId, userId);
+            if (optionalClassroom.isPresent()) {
+                Teacher teacher = new Teacher();
+                teacher.setId(currentTeacher.getId());
+                Classroom classroom = optionalClassroom.get();
+                classroom.setTeacher(teacher);
+                classroomRepository.save(classroom);
+            }
+        });
+    }
+
+    private List<Classroom> fetchClassroomsWhereTeacherSetToNull(Teacher currentTeacher, Teacher newTeacher) {
+        return currentTeacher.getClassrooms()
+                .stream()
+                .filter(currentClassroom -> {
+                    return newTeacher.getClassrooms()
+                            .stream()
+                            .noneMatch(newClassroom -> newClassroom.getId().equals(currentClassroom.getId()));
+                }).collect(Collectors.toList());
+    }
+
+    private List<Classroom> fetchClassroomsWhereAddTeacher(Teacher currentTeacher, Teacher newTeacher) {
+        return newTeacher.getClassrooms()
+                .stream()
+                .filter(newClassroom -> {
+                    return currentTeacher.getClassrooms()
+                            .stream()
+                            .noneMatch(currentClassroom -> currentClassroom.getId().equals(newClassroom.getId()));
+                }).collect(Collectors.toList());
     }
 }

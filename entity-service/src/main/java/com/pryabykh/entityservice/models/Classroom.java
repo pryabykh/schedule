@@ -5,7 +5,9 @@ import org.hibernate.Hibernate;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -32,6 +34,12 @@ public class Classroom {
     @JoinColumn(name = "teacher")
     private Teacher teacher;
 
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinTable(name = "classroom_subject",
+            joinColumns = @JoinColumn(name = "classroom_id"),
+            inverseJoinColumns = @JoinColumn(name = "subject_id"))
+    private Set<Subject> subjects = new HashSet<>();
+
     @Column(name = "creator_id")
     private Long creatorId;
 
@@ -57,6 +65,16 @@ public class Classroom {
     @PreUpdate
     void onUpdate() {
         this.setUpdatedAt(new Date());
+    }
+
+    public void addSubject(Subject subject) {
+        this.subjects.add(subject);
+        subject.getClassrooms().add(this);
+    }
+
+    public void removeSubject(Subject subject) {
+        this.subjects.remove(subject);
+        subject.getClassrooms().remove(this);
     }
 
     @Override
