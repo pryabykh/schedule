@@ -143,7 +143,7 @@ public class ClassroomServiceImpl implements ClassroomService {
             case "teacher": {
                 return classroomRepository.findByCreatorIdAndTeacherIdContaining(creatorId, filterValue, pageable);
             }
-            case "subject": {
+            case "subjects": {
                 return classroomRepository.findByCreatorIdAndSubjectsContaining(creatorId, filterValue, pageable);
             }
             default: {
